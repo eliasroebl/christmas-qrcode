@@ -58,22 +58,40 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.redirect('/index.html');
+});
+
 // Initialize database and start server
 async function startServer() {
   try {
-    // Initialize database tables
-    await initializeTables();
-    console.log(`📊 Database type: ${dbType}`);
-
-    // Start server - bind to 0.0.0.0 for Railway
-    app.listen(PORT, '0.0.0.0', () => {
+    // Start server first so Railway health checks can pass during initialization
+    const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📱 Scan URL: ${process.env.APP_URL || `http://localhost:${PORT}`}`);
     });
+
+    // Initialize database tables after server is listening
+    await initializeTables();
+    console.log(`📊 Database type: ${dbType}`);
+    console.log('✅ Application ready');
+
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 }
+
+// Handle uncaught errors
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
 
 startServer();

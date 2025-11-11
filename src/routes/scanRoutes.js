@@ -54,7 +54,7 @@ router.get('/status/:token', async (req, res) => {
 
     res.json({
       status: qrCode.status,
-      donorVerified: qrCode.donor_verified === 1,
+      donorVerified: !!qrCode.donor_verified, // Works for both PostgreSQL (true/false) and SQLite (1/0)
       hasPhoto: !!qrCode.recipient_photo_path,
       emailSent: !!qrCode.email_sent_at
     });
@@ -176,7 +176,7 @@ router.post('/upload-recipient', upload.single('photo'), async (req, res) => {
       return res.status(400).json({ error: 'QR code already completed' });
     }
 
-    if (qrCode.donor_verified !== 1) {
+    if (!qrCode.donor_verified) { // Works for both PostgreSQL (true/false) and SQLite (1/0)
       return res.status(400).json({ error: 'Donor email not yet verified' });
     }
 
