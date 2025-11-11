@@ -125,6 +125,8 @@ class EmailService {
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .logo-section { background: white; padding: 20px; text-align: center; border-bottom: 3px solid #0057B8; }
+          .logo { max-width: 200px; height: auto; }
           .header { background: #0057B8; color: white; padding: 20px; text-align: center; }
           .content { background: #f9f9f9; padding: 30px; }
           .button { display: inline-block; background: #FFD700; color: #0057B8; padding: 12px 30px;
@@ -134,6 +136,9 @@ class EmailService {
       </head>
       <body>
         <div class="container">
+          <div class="logo-section">
+            <img src="https://www.gain-germany.org/fileadmin/Content/Download/GAiNLogoCMYK_ohne.png" alt="GAiN Germany" class="logo">
+          </div>
           <div class="header">
             <h1>🎁 Vielen Dank für Ihre Spende!</h1>
           </div>
@@ -156,9 +161,10 @@ class EmailService {
             <a href="${statusLink}">${statusLink}</a></p>
 
             <p>Herzliche Grüße<br>
-            Ihr Spenden-Team 💙💛</p>
+            Ihr GAiN Germany Team 💙💛</p>
           </div>
           <div class="footer">
+            <p>GAiN (Global Aid Network) Germany</p>
             <p>Diese E-Mail wurde automatisch generiert.</p>
           </div>
         </div>
@@ -169,7 +175,7 @@ class EmailService {
     try {
       await this.sendEmail({
         to: email,
-        subject: '🎁 Bitte bestätigen Sie Ihre E-Mail-Adresse',
+        subject: '🎁 Bitte bestätigen Sie Ihre E-Mail-Adresse - GAiN Germany',
         html: htmlContent
       });
       return { success: true };
@@ -202,6 +208,8 @@ class EmailService {
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .logo-section { background: white; padding: 20px; text-align: center; border-bottom: 3px solid #0057B8; }
+          .logo { max-width: 200px; height: auto; }
           .header { background: #0057B8; color: white; padding: 20px; text-align: center; }
           .content { background: #f9f9f9; padding: 30px; }
           .message-box { background: white; border-left: 4px solid #FFD700; padding: 15px; margin: 20px 0; }
@@ -210,6 +218,9 @@ class EmailService {
       </head>
       <body>
         <div class="container">
+          <div class="logo-section">
+            <img src="https://www.gain-germany.org/fileadmin/Content/Download/GAiNLogoCMYK_ohne.png" alt="GAiN Germany" class="logo">
+          </div>
           <div class="header">
             <h1>💌 Dankesnachricht erhalten!</h1>
           </div>
@@ -234,9 +245,10 @@ class EmailService {
             <p>Mit Ihrer Spende haben Sie einem Menschen in schwierigen Zeiten geholfen und Hoffnung geschenkt.</p>
 
             <p>Herzliche Grüße<br>
-            Ihr Spenden-Team</p>
+            Ihr GAiN Germany Team</p>
           </div>
           <div class="footer">
+            <p>GAiN (Global Aid Network) Germany</p>
             <p>Ihre Daten werden gemäß DSGVO geschützt und nach 12 Monaten automatisch gelöscht.</p>
           </div>
         </div>
@@ -255,7 +267,7 @@ class EmailService {
     try {
       await this.sendEmail({
         to: donor_email,
-        subject: '💌 Dankesnachricht aus der Ukraine',
+        subject: '💌 Dankesnachricht aus der Ukraine - GAiN Germany',
         html: htmlContent,
         attachments: attachments
       });
