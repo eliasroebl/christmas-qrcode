@@ -8,20 +8,25 @@
     "dev": "nodemon server.js",
     "init-db": "node src/utils/initDb.js"
   },
-  "keywords": ["qrcode", "donation", "charity"],
+  "keywords": [
+    "qrcode",
+    "donation",
+    "charity"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "sqlite3": "^5.1.6",
-    "qrcode": "^1.5.3",
-    "pdfkit": "^0.13.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.7",
+    "pdfkit": "^0.13.0",
+    "pg": "^8.16.3",
+    "qrcode": "^1.5.3",
     "resend": "^3.0.0",
-    "dotenv": "^16.3.1",
-    "uuid": "^9.0.1",
-    "cors": "^2.8.5"
+    "sqlite3": "^5.1.6",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

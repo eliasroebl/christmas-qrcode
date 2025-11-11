@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 
+const { initializeTables, dbType } = require('./src/config/database');
 const qrRoutes = require('./src/routes/qrRoutes');
 const scanRoutes = require('./src/routes/scanRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
@@ -57,8 +58,22 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📱 Scan URL: ${process.env.APP_URL || `http://localhost:${PORT}`}`);
-});
+// Initialize database and start server
+async function startServer() {
+  try {
+    // Initialize database tables
+    await initializeTables();
+    console.log(`📊 Database type: ${dbType}`);
+
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📱 Scan URL: ${process.env.APP_URL || `http://localhost:${PORT}`}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
