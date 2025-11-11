@@ -3,17 +3,108 @@ const path = require('path');
 const fs = require('fs');
 const EmailLog = require('../models/EmailLog');
 
+// Try to load Resend (optional dependency)
+let Resend;
+try {
+  const resendModule = require('resend');
+  Resend = resendModule.Resend;
+} catch (e) {
+  // Resend not installed, will fall back to nodemailer
+}
+
 class EmailService {
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT),
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
+    // Determine which email provider to use
+    if (process.env.RESEND_API_KEY && Resend) {
+      this.provider = 'resend';
+      this.resend = new Resend(process.env.RESEND_API_KEY);
+      console.log('✓ Email service using: Resend');
+    } else if (process.env.EMAIL_HOST && process.env.EMAIL_USER) {
+      this.provider = 'smtp';
+      this.transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: parseInt(process.env.EMAIL_PORT),
+        secure: false,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD
+        }
+      });
+      console.log('✓ Email service using: SMTP (Nodemailer)');
+    } else {
+      console.warn('⚠️  No email provider configured! Set RESEND_API_KEY or EMAIL_* variables');
+      this.provider = 'none';
+    }
+  }
+
+  /**
+   * Send email using configured provider
+   */
+  async sendEmail({ to, subject, html, attachments = [] }) {
+    if (this.provider === 'none') {
+      throw new Error('No email provider configured');
+    }
+
+    if (this.provider === 'resend') {
+      return await this.sendWithResend({ to, subject, html, attachments });
+    } else {
+      return await this.sendWithSMTP({ to, subject, html, attachments });
+    }
+  }
+
+  /**
+   * Send email via Resend
+   */
+  async sendWithResend({ to, subject, html, attachments }) {
+    try {
+      // Convert file attachments to base64 for Resend
+      const resendAttachments = [];
+
+      for (const attachment of attachments) {
+        if (attachment.path && fs.existsSync(attachment.path)) {
+          const content = fs.readFileSync(attachment.path);
+          resendAttachments.push({
+            filename: attachment.filename,
+            content: content
+          });
+        }
       }
-    });
+
+      const result = await this.resend.emails.send({
+        from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+        to: to,
+        subject: subject,
+        html: html,
+        attachments: resendAttachments.length > 0 ? resendAttachments : undefined
+      });
+
+      console.log('✓ Email sent via Resend:', result.id);
+      return { success: true, messageId: result.id };
+    } catch (error) {
+      console.error('✗ Resend error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send email via SMTP (Nodemailer)
+   */
+  async sendWithSMTP({ to, subject, html, attachments }) {
+    try {
+      const result = await this.transporter.sendMail({
+        from: process.env.EMAIL_FROM,
+        to: to,
+        subject: subject,
+        html: html,
+        attachments: attachments
+      });
+
+      console.log('✓ Email sent via SMTP:', result.messageId);
+      return { success: true, messageId: result.messageId };
+    } catch (error) {
+      console.error('✗ SMTP error:', error);
+      throw error;
+    }
   }
 
   /**
@@ -74,8 +165,7 @@ class EmailService {
     `;
 
     try {
-      await this.transporter.sendMail({
-        from: process.env.EMAIL_FROM,
+      await this.sendEmail({
         to: email,
         subject: '🎁 Bitte bestätigen Sie Ihre E-Mail-Adresse',
         html: htmlContent
@@ -152,8 +242,7 @@ class EmailService {
     }
 
     try {
-      await this.transporter.sendMail({
-        from: process.env.EMAIL_FROM,
+      await this.sendEmail({
         to: donor_email,
         subject: '💌 Dankesnachricht aus der Ukraine',
         html: htmlContent,
