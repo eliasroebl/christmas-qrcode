@@ -161,10 +161,10 @@ class EmailService {
             <a href="${statusLink}">${statusLink}</a></p>
 
             <p>Herzliche Grüße<br>
-            Ihr GAiN Germany Team 💙💛</p>
+            Ihr GAiN Austria Team 💙💛</p>
           </div>
           <div class="footer">
-            <p>GAiN (Global Aid Network) Germany</p>
+            <p>GAiN (Global Aid Network) Austria</p>
             <p>Diese E-Mail wurde automatisch generiert.</p>
           </div>
         </div>
@@ -175,7 +175,7 @@ class EmailService {
     try {
       await this.sendEmail({
         to: email,
-        subject: '🎁 Bitte bestätigen Sie Ihre E-Mail-Adresse - GAiN Germany',
+        subject: '🎁 Bitte bestätigen Sie Ihre E-Mail-Adresse - GAiN Austria',
         html: htmlContent
       });
       return { success: true };
@@ -245,10 +245,10 @@ class EmailService {
             <p>Mit Ihrer Spende haben Sie einem Menschen in schwierigen Zeiten geholfen und Hoffnung geschenkt.</p>
 
             <p>Herzliche Grüße<br>
-            Ihr GAiN Germany Team</p>
+            Ihr GAiN Austria Team</p>
           </div>
           <div class="footer">
-            <p>GAiN (Global Aid Network) Germany</p>
+            <p>GAiN (Global Aid Network) Austria</p>
             <p>Ihre Daten werden gemäß DSGVO geschützt und nach 12 Monaten automatisch gelöscht.</p>
           </div>
         </div>
@@ -267,7 +267,7 @@ class EmailService {
     try {
       await this.sendEmail({
         to: donor_email,
-        subject: '💌 Dankesnachricht aus der Ukraine - GAiN Germany',
+        subject: '💌 Dankesnachricht aus der Ukraine - GAiN Austria',
         html: htmlContent,
         attachments: attachments
       });

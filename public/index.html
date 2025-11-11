@@ -3,68 +3,101 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR-Code Spenden-Plattform 🎁</title>
+  <title>GAiN Austria - QR-Code Spenden-Plattform</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #0057B8 0%, #FFD700 100%);
+      background: #f5f5f5;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    }
+    .page-header {
+      background: white;
       padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 40px;
+      text-align: center;
+    }
+    .logo {
+      max-width: 200px;
+      height: auto;
     }
     .container {
       background: white;
-      border-radius: 20px;
+      border-radius: 8px;
       padding: 50px;
-      max-width: 600px;
+      max-width: 800px;
       width: 100%;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin: 0 auto 40px auto;
+    }
+    .hero {
       text-align: center;
+      margin-bottom: 50px;
+      padding-bottom: 30px;
+      border-bottom: 3px solid #0057B8;
     }
     .flag {
-      font-size: 72px;
+      font-size: 64px;
       margin-bottom: 20px;
     }
     h1 {
-      color: #0057B8;
+      color: #333;
       font-size: 32px;
       margin-bottom: 15px;
+      font-weight: 600;
     }
     .subtitle {
       color: #666;
       font-size: 18px;
-      margin-bottom: 40px;
+      margin-top: 15px;
       line-height: 1.6;
     }
     .feature-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 25px;
       margin-bottom: 40px;
-      text-align: left;
     }
     .feature {
-      padding: 20px;
+      padding: 25px;
       background: #f9f9f9;
-      border-radius: 10px;
-      border-left: 4px solid #FFD700;
+      border-radius: 8px;
+      border-left: 4px solid #0057B8;
+      text-align: left;
     }
     .feature .icon {
-      font-size: 32px;
-      margin-bottom: 10px;
+      font-size: 36px;
+      margin-bottom: 12px;
+      display: block;
     }
     .feature h3 {
       color: #0057B8;
-      font-size: 16px;
-      margin-bottom: 8px;
+      font-size: 18px;
+      margin-bottom: 10px;
+      font-weight: 600;
     }
     .feature p {
       color: #666;
-      font-size: 14px;
-      line-height: 1.4;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .info-box {
+      background: #e7f3ff;
+      border: 2px solid #0057B8;
+      border-radius: 8px;
+      padding: 25px;
+      margin: 30px 0;
+    }
+    .info-box h3 {
+      color: #0057B8;
+      margin-bottom: 12px;
+      font-size: 18px;
+    }
+    .info-box p {
+      color: #333;
+      font-size: 15px;
+      line-height: 1.6;
     }
     .cta-buttons {
       display: flex;
@@ -74,10 +107,10 @@
       margin-top: 30px;
     }
     .btn {
-      padding: 15px 30px;
-      border-radius: 8px;
+      padding: 15px 35px;
+      border-radius: 6px;
       text-decoration: none;
-      font-weight: bold;
+      font-weight: 600;
       font-size: 16px;
       transition: all 0.3s;
       display: inline-block;
@@ -88,7 +121,7 @@
     }
     .btn-primary:hover {
       background: #003d82;
-      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,87,184,0.3);
     }
     .btn-secondary {
       background: #6c757d;
@@ -96,75 +129,68 @@
     }
     .btn-secondary:hover {
       background: #545b62;
-      transform: translateY(-2px);
-    }
-    .info-box {
-      background: #e7f3ff;
-      border: 2px solid #0057B8;
-      border-radius: 10px;
-      padding: 20px;
-      margin-top: 30px;
-    }
-    .info-box h3 {
-      color: #0057B8;
-      margin-bottom: 10px;
-    }
-    .info-box p {
-      color: #333;
-      font-size: 14px;
-      line-height: 1.6;
+      box-shadow: 0 4px 12px rgba(108,117,125,0.3);
     }
     .footer {
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid #ddd;
+      text-align: center;
+      padding: 30px 20px;
       color: #666;
-      font-size: 12px;
+      font-size: 14px;
     }
     .footer a {
       color: #0057B8;
       text-decoration: none;
+      font-weight: 500;
     }
     .footer a:hover {
       text-decoration: underline;
     }
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       .feature-grid {
         grid-template-columns: 1fr;
       }
-      .cta-buttons {
-        flex-direction: column;
+      .container {
+        padding: 30px 20px;
+      }
+      h1 {
+        font-size: 26px;
       }
     }
   </style>
 </head>
 <body>
+  <div class="page-header">
+    <img src="https://www.gain-germany.org/fileadmin/Content/Download/GAiNLogoCMYK_ohne.png" alt="GAiN Austria" class="logo">
+  </div>
+
   <div class="container">
-    <div class="flag">🎁💙💛</div>
-    <h1>QR-Code Spenden-Plattform</h1>
-    <p class="subtitle">
-      Verbinden Sie Spender in Österreich mit Empfängern in der Ukraine
-      durch personalisierte Dankesnachrichten
-    </p>
+    <div class="hero">
+      <div class="flag">🎁💙💛</div>
+      <h1>QR-Code Spenden-Plattform</h1>
+      <p class="subtitle">
+        Verbinden Sie Spender in Österreich mit Empfängern in der Ukraine
+        durch personalisierte Dankesnachrichten
+      </p>
+    </div>
 
     <div class="feature-grid">
       <div class="feature">
-        <div class="icon">📱</div>
+        <span class="icon">📱</span>
         <h3>QR-Code scannen</h3>
         <p>Spender und Empfänger scannen denselben Code zu unterschiedlichen Zeiten</p>
       </div>
       <div class="feature">
-        <div class="icon">📧</div>
+        <span class="icon">📧</span>
         <h3>E-Mail Verifizierung</h3>
         <p>Sichere Bestätigung der Spender-E-Mail-Adresse</p>
       </div>
       <div class="feature">
-        <div class="icon">📸</div>
+        <span class="icon">📸</span>
         <h3>Foto-Upload</h3>
         <p>Empfänger senden Dankesfoto und optionale Nachricht</p>
       </div>
       <div class="feature">
-        <div class="icon">💌</div>
+        <span class="icon">💌</span>
         <h3>Automatischer Versand</h3>
         <p>Spender erhalten E-Mail mit Foto und Nachricht</p>
       </div>
@@ -179,22 +205,25 @@
     </div>
 
     <div class="cta-buttons">
-      <a href="/admin.html" class="btn btn-primary">🔐 Admin-Bereich</a>
+      <a href="/admin" class="btn btn-primary">🔐 Admin-Bereich</a>
       <a href="/privacy" class="btn btn-secondary">📋 Datenschutz</a>
     </div>
+  </div>
 
-    <div class="footer">
-      <p>
-        <strong>Für Spender:</strong> Scannen Sie den QR-Code auf Ihrem Geschenk<br>
-        <strong>Für Hilfsorganisationen:</strong> Melden Sie sich im Admin-Bereich an
-      </p>
-      <p style="margin-top: 15px;">
-        <a href="https://github.com/eliasroebl/christmas-qrcode" target="_blank">
-          GitHub Repository
-        </a> |
-        <a href="/privacy">Datenschutz</a>
-      </p>
-    </div>
+  <div class="footer">
+    <p>
+      <strong>Für Spender:</strong> Scannen Sie den QR-Code auf Ihrem Geschenk<br>
+      <strong>Für Hilfsorganisationen:</strong> Melden Sie sich im Admin-Bereich an
+    </p>
+    <p style="margin-top: 20px;">
+      <a href="https://github.com/eliasroebl/christmas-qrcode" target="_blank">
+        GitHub Repository
+      </a> |
+      <a href="/privacy">Datenschutz</a>
+    </p>
+    <p style="margin-top: 15px; font-size: 13px;">
+      © GAiN (Global Aid Network) Austria
+    </p>
   </div>
 </body>
 </html>
