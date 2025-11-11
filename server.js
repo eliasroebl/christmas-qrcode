@@ -31,6 +31,27 @@ app.use('/api/qr', qrRoutes);
 app.use('/api/scan', scanRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Clean URL redirects (for QR codes)
+app.get('/scan', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'scan.html'));
+});
+
+app.get('/verify', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'verify.html'));
+});
+
+app.get('/status', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'status.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('/privacy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'privacy.html'));
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
