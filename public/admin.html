@@ -193,6 +193,57 @@
       background: #d4edda;
       color: #155724;
     }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #999;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+    }
+    .modal-close:hover {
+      color: #333;
+    }
+    .qr-canvas {
+      margin: 20px auto;
+      display: block;
+    }
+    .action-btn {
+      padding: 6px 12px;
+      font-size: 14px;
+      margin: 0 2px;
+    }
   </style>
 </head>
 <body>
@@ -266,6 +317,18 @@
     </div>
   </div>
 
+  <!-- QR Code Modal -->
+  <div id="qrModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeQRModal()">&times;</button>
+      <h2 style="margin-bottom: 20px; color: #0057B8;">QR Code</h2>
+      <canvas id="qrCanvas" class="qr-canvas"></canvas>
+      <p id="qrTokenText" style="color: #666; margin-top: 10px; font-size: 14px; word-break: break-all;"></p>
+      <p id="qrUrlText" style="color: #999; margin-top: 5px; font-size: 12px; word-break: break-all;"></p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
   <script>
     let authToken = null;
 
@@ -354,6 +417,7 @@
                 <th>Spender E-Mail</th>
                 <th>Verifiziert</th>
                 <th>Erstellt am</th>
+                <th>Aktionen</th>
               </tr>
             </thead>
             <tbody>
@@ -367,6 +431,11 @@
               <td>${qr.donor_email || '-'}</td>
               <td>${qr.donor_verified ? '✅' : '❌'}</td>
               <td>${new Date(qr.created_at).toLocaleString('de-DE')}</td>
+              <td>
+                <button class="action-btn" onclick='showQRCode("${qr.token}")'>
+                  📱 QR anzeigen
+                </button>
+              </td>
             </tr>
           `;
         });
@@ -429,6 +498,58 @@
         console.error(error);
       }
     }
+
+    function showQRCode(token) {
+      const appUrl = window.location.origin;
+      const qrUrl = `${appUrl}/scan?code=${token}`;
+
+      // Generate QR code
+      const qr = qrcode(0, 'M');
+      qr.addData(qrUrl);
+      qr.make();
+
+      // Get canvas and draw QR code
+      const canvas = document.getElementById('qrCanvas');
+      const ctx = canvas.getContext('2d');
+      const cellSize = 8;
+      const moduleCount = qr.getModuleCount();
+      const canvasSize = moduleCount * cellSize;
+
+      canvas.width = canvasSize;
+      canvas.height = canvasSize;
+
+      // Draw white background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvasSize, canvasSize);
+
+      // Draw QR code
+      for (let row = 0; row < moduleCount; row++) {
+        for (let col = 0; col < moduleCount; col++) {
+          if (qr.isDark(row, col)) {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+          }
+        }
+      }
+
+      // Update text
+      document.getElementById('qrTokenText').textContent = `Token: ${token}`;
+      document.getElementById('qrUrlText').textContent = qrUrl;
+
+      // Show modal
+      document.getElementById('qrModal').classList.add('active');
+    }
+
+    function closeQRModal() {
+      document.getElementById('qrModal').classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('qrModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeQRModal();
+      }
+    });
   </script>
 </body>
 </html>
