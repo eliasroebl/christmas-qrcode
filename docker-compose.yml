@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - APP_URL=${APP_URL}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    volumes:
+      - ./database.sqlite:/app/database.sqlite
+      - ./uploads:/app/uploads
+    restart: unless-stopped

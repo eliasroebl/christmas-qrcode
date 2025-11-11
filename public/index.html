@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR-Code Spenden-Plattform 🎁</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0057B8 0%, #FFD700 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 50px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .flag {
+      font-size: 72px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #0057B8;
+      font-size: 32px;
+      margin-bottom: 15px;
+    }
+    .subtitle {
+      color: #666;
+      font-size: 18px;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 40px;
+      text-align: left;
+    }
+    .feature {
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      border-left: 4px solid #FFD700;
+    }
+    .feature .icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    .feature h3 {
+      color: #0057B8;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    .feature p {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .cta-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+    .btn {
+      padding: 15px 30px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+      transition: all 0.3s;
+      display: inline-block;
+    }
+    .btn-primary {
+      background: #0057B8;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #003d82;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #545b62;
+      transform: translateY(-2px);
+    }
+    .info-box {
+      background: #e7f3ff;
+      border: 2px solid #0057B8;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+    .info-box h3 {
+      color: #0057B8;
+      margin-bottom: 10px;
+    }
+    .info-box p {
+      color: #333;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      color: #666;
+      font-size: 12px;
+    }
+    .footer a {
+      color: #0057B8;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 600px) {
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+      .cta-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="flag">🎁💙💛</div>
+    <h1>QR-Code Spenden-Plattform</h1>
+    <p class="subtitle">
+      Verbinden Sie Spender in Österreich mit Empfängern in der Ukraine
+      durch personalisierte Dankesnachrichten
+    </p>
+
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="icon">📱</div>
+        <h3>QR-Code scannen</h3>
+        <p>Spender und Empfänger scannen denselben Code zu unterschiedlichen Zeiten</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📧</div>
+        <h3>E-Mail Verifizierung</h3>
+        <p>Sichere Bestätigung der Spender-E-Mail-Adresse</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📸</div>
+        <h3>Foto-Upload</h3>
+        <p>Empfänger senden Dankesfoto und optionale Nachricht</p>
+      </div>
+      <div class="feature">
+        <div class="icon">💌</div>
+        <h3>Automatischer Versand</h3>
+        <p>Spender erhalten E-Mail mit Foto und Nachricht</p>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h3>🔒 Datenschutz garantiert</h3>
+      <p>
+        Keine direkten Kontaktdaten werden ausgetauscht. Alle Daten werden nach 12 Monaten
+        automatisch gelöscht. DSGVO-konform.
+      </p>
+    </div>
+
+    <div class="cta-buttons">
+      <a href="/admin.html" class="btn btn-primary">🔐 Admin-Bereich</a>
+      <a href="/privacy" class="btn btn-secondary">📋 Datenschutz</a>
+    </div>
+
+    <div class="footer">
+      <p>
+        <strong>Für Spender:</strong> Scannen Sie den QR-Code auf Ihrem Geschenk<br>
+        <strong>Für Hilfsorganisationen:</strong> Melden Sie sich im Admin-Bereich an
+      </p>
+      <p style="margin-top: 15px;">
+        <a href="https://github.com/eliasroebl/christmas-qrcode" target="_blank">
+          GitHub Repository
+        </a> |
+        <a href="/privacy">Datenschutz</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

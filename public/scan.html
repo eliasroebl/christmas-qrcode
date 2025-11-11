@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spenden QR-Code</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0057B8 0%, #FFD700 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      color: #0057B8;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    .flag {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+    input[type="email"], input[type="text"], textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #0057B8;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+    .file-input-wrapper input[type=file] {
+      position: absolute;
+      left: -9999px;
+    }
+    .file-input-label {
+      display: block;
+      padding: 12px;
+      background: #f0f0f0;
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .file-input-label:hover {
+      background: #e8e8e8;
+      border-color: #0057B8;
+    }
+    .file-preview {
+      margin-top: 10px;
+      max-width: 100%;
+      border-radius: 8px;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .checkbox-group input[type="checkbox"] {
+      margin-right: 10px;
+      margin-top: 4px;
+    }
+    .checkbox-group label {
+      margin-bottom: 0;
+      font-weight: normal;
+      font-size: 14px;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      background: #0057B8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #003d82;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .message {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .message.warning {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+    .loader {
+      display: none;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .loader::after {
+      content: '';
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #0057B8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .hidden { display: none; }
+    .link {
+      color: #0057B8;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="flag">🎁</div>
+      <h1 id="title">Laden...</h1>
+      <p id="subtitle" style="color: #666; margin-top: 10px;"></p>
+    </div>
+
+    <div id="message" class="message"></div>
+    <div id="loader" class="loader"></div>
+
+    <!-- Donor Form (German) -->
+    <form id="donorForm" class="hidden">
+      <div class="form-group">
+        <label for="email">E-Mail-Adresse *</label>
+        <input type="email" id="email" name="email" required
+               placeholder="ihre.email@beispiel.at">
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="gdprConsent" required>
+        <label for="gdprConsent">
+          Ich willige ein, dass meine E-Mail-Adresse gespeichert wird, um die Dankesnachricht
+          zu erhalten. Die Daten werden nach 12 Monaten automatisch gelöscht.
+          <a href="/privacy" class="link" target="_blank">Datenschutz</a>
+        </label>
+      </div>
+
+      <button type="submit">E-Mail bestätigen</button>
+
+      <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #666;">
+        Sie erhalten eine Bestätigungs-E-Mail, um Ihre Adresse zu verifizieren.
+      </p>
+    </form>
+
+    <!-- Recipient Form (Ukrainian) -->
+    <form id="recipientForm" class="hidden" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="photo">Фото * (макс. 5 МБ)</label>
+        <div class="file-input-wrapper">
+          <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/jpg" required>
+          <label for="photo" class="file-input-label">
+            📷 Натисніть, щоб вибрати фото
+          </label>
+        </div>
+        <img id="photoPreview" class="file-preview hidden" alt="Preview">
+      </div>
+
+      <div class="form-group">
+        <label for="message">Ваше повідомлення (необов'язково)</label>
+        <textarea id="message" name="message"
+                  placeholder="Напишіть декілька слів подяки..."></textarea>
+      </div>
+
+      <button type="submit">Відправити подяку</button>
+
+      <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #666;">
+        Ваше фото та повідомлення будуть надіслані дарувальнику.
+      </p>
+    </form>
+
+    <!-- Waiting State -->
+    <div id="waitingState" class="hidden" style="text-align: center;">
+      <p style="color: #666; margin-bottom: 20px;">
+        Цей код ще не активований дарувальником. Будь ласка, спробуйте пізніше.
+      </p>
+      <p style="color: #666; font-size: 14px;">
+        This code has not been activated by the donor yet. Please try again later.
+      </p>
+    </div>
+
+    <!-- Completed State -->
+    <div id="completedState" class="hidden" style="text-align: center;">
+      <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+      <h2 style="color: #0057B8; margin-bottom: 10px;">Дякуємо!</h2>
+      <p style="color: #666;">Ваше повідомлення було успішно надіслано.</p>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const qrToken = urlParams.get('code');
+    const lang = urlParams.get('lang');
+
+    let qrStatus = null;
+
+    async function checkQRStatus() {
+      if (!qrToken) {
+        showMessage('error', 'Kein QR-Code gefunden / QR-код не знайдено');
+        return;
+      }
+
+      try {
+        showLoader(true);
+        const response = await fetch(`/api/scan/status/${qrToken}`);
+        const data = await response.json();
+
+        qrStatus = data.status;
+
+        showLoader(false);
+
+        if (data.status === 'EXPIRED') {
+          showMessage('error', 'Dieser QR-Code ist abgelaufen / Цей QR-код прострочений');
+          return;
+        }
+
+        // Determine which form to show
+        if (data.status === 'UNUSED') {
+          showDonorForm();
+        } else if (data.status === 'DONOR_REGISTERED') {
+          if (data.donorVerified) {
+            showRecipientForm();
+          } else {
+            showWaitingState('donor-not-verified');
+          }
+        } else if (data.status === 'COMPLETED') {
+          showCompletedState();
+        }
+      } catch (error) {
+        showLoader(false);
+        showMessage('error', 'Fehler beim Laden / Помилка завантаження');
+        console.error(error);
+      }
+    }
+
+    function showDonorForm() {
+      document.getElementById('title').textContent = 'Vielen Dank für Ihre Spende!';
+      document.getElementById('subtitle').textContent = 'Bitte geben Sie Ihre E-Mail-Adresse ein';
+      document.getElementById('donorForm').classList.remove('hidden');
+    }
+
+    function showRecipientForm() {
+      document.getElementById('title').textContent = 'Дякуємо за подарунок!';
+      document.getElementById('subtitle').textContent = 'Будь ласка, поділіться фото та повідомленням';
+      document.getElementById('recipientForm').classList.remove('hidden');
+    }
+
+    function showWaitingState(reason) {
+      if (reason === 'donor-not-verified') {
+        document.getElementById('title').textContent = 'Очікування активації';
+        document.getElementById('waitingState').classList.remove('hidden');
+      }
+    }
+
+    function showCompletedState() {
+      document.getElementById('title').textContent = 'Abgeschlossen / Завершено';
+      document.getElementById('completedState').classList.remove('hidden');
+    }
+
+    function showMessage(type, text) {
+      const messageEl = document.getElementById('message');
+      messageEl.className = `message ${type}`;
+      messageEl.textContent = text;
+      messageEl.style.display = 'block';
+    }
+
+    function showLoader(show) {
+      document.getElementById('loader').style.display = show ? 'block' : 'none';
+    }
+
+    // Donor form submission
+    document.getElementById('donorForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const gdprConsent = document.getElementById('gdprConsent').checked;
+
+      if (!gdprConsent) {
+        showMessage('error', 'Bitte stimmen Sie der Datenschutzerklärung zu');
+        return;
+      }
+
+      try {
+        showLoader(true);
+        const response = await fetch('/api/scan/register-donor', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: qrToken, email, gdprConsent })
+        });
+
+        const data = await response.json();
+        showLoader(false);
+
+        if (response.ok) {
+          showMessage('success', '✓ E-Mail gesendet! Bitte prüfen Sie Ihr Postfach und bestätigen Sie Ihre Adresse.');
+          document.getElementById('donorForm').classList.add('hidden');
+        } else {
+          showMessage('error', data.error || 'Fehler beim Registrieren');
+        }
+      } catch (error) {
+        showLoader(false);
+        showMessage('error', 'Netzwerkfehler. Bitte versuchen Sie es erneut.');
+        console.error(error);
+      }
+    });
+
+    // Recipient form submission
+    document.getElementById('recipientForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.append('token', qrToken);
+      formData.append('photo', document.getElementById('photo').files[0]);
+      formData.append('message', document.getElementById('message').value);
+
+      try {
+        showLoader(true);
+        const response = await fetch('/api/scan/upload-recipient', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        showLoader(false);
+
+        if (response.ok) {
+          document.getElementById('recipientForm').classList.add('hidden');
+          showCompletedState();
+          showMessage('success', '✓ Дякуємо! Ваше повідомлення відправлено.');
+        } else {
+          showMessage('error', data.error || 'Помилка завантаження');
+        }
+      } catch (error) {
+        showLoader(false);
+        showMessage('error', 'Помилка мережі. Спробуйте ще раз.');
+        console.error(error);
+      }
+    });
+
+    // Photo preview
+    document.getElementById('photo').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('photoPreview');
+          preview.src = e.target.result;
+          preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+
+        document.querySelector('.file-input-label').textContent = '✓ ' + file.name;
+      }
+    });
+
+    // Initialize
+    checkQRStatus();
+  </script>
+</body>
+</html>

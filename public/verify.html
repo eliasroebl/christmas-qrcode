@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Mail Verifizierung</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0057B8 0%, #FFD700 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .icon {
+      font-size: 72px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #0057B8;
+      margin-bottom: 15px;
+    }
+    p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+    .loader {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0057B8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px 0;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .hidden { display: none; }
+    .button {
+      display: inline-block;
+      padding: 12px 30px;
+      background: #0057B8;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      margin-top: 20px;
+      transition: background 0.3s;
+    }
+    .button:hover {
+      background: #003d82;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loading" class="hidden">
+      <div class="loader"></div>
+      <p>Verifizierung läuft...</p>
+    </div>
+
+    <div id="success" class="hidden">
+      <div class="icon">✅</div>
+      <h1>E-Mail bestätigt!</h1>
+      <p>Vielen Dank! Ihre E-Mail-Adresse wurde erfolgreich verifiziert.</p>
+      <p><strong>Ihr QR-Code ist jetzt aktiv.</strong></p>
+      <p>Sie erhalten automatisch eine E-Mail, sobald Ihr Geschenk in der Ukraine angekommen ist
+         und der Empfänger eine Dankesnachricht gesendet hat.</p>
+      <p style="margin-top: 30px; font-size: 14px;">
+        Sie können dieses Fenster nun schließen.
+      </p>
+    </div>
+
+    <div id="error" class="hidden">
+      <div class="icon">❌</div>
+      <h1>Verifizierung fehlgeschlagen</h1>
+      <p id="errorMessage">Der Verifizierungslink ist ungültig oder abgelaufen.</p>
+      <p style="margin-top: 20px; font-size: 14px;">
+        Bitte scannen Sie den QR-Code erneut und fordern Sie eine neue Bestätigungs-E-Mail an.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    async function verifyEmail() {
+      if (!token) {
+        showError('Kein Verifizierungstoken gefunden.');
+        return;
+      }
+
+      showLoading();
+
+      try {
+        const response = await fetch(`/api/scan/verify/${token}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          showSuccess();
+        } else {
+          showError(data.error || 'Verifizierung fehlgeschlagen');
+        }
+      } catch (error) {
+        showError('Netzwerkfehler. Bitte versuchen Sie es später erneut.');
+        console.error(error);
+      }
+    }
+
+    function showLoading() {
+      document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('success').classList.add('hidden');
+      document.getElementById('error').classList.add('hidden');
+    }
+
+    function showSuccess() {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('success').classList.remove('hidden');
+      document.getElementById('error').classList.add('hidden');
+    }
+
+    function showError(message) {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('success').classList.add('hidden');
+      document.getElementById('error').classList.remove('hidden');
+      document.getElementById('errorMessage').textContent = message;
+    }
+
+    // Start verification
+    verifyEmail();
+  </script>
+</body>
+</html>
