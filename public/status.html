@@ -3,73 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Geschenk-Status</title>
+  <title>GAiN Austria - Geschenk-Status</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #0057B8 0%, #FFD700 100%);
+      background: #f5f5f5;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding: 20px;
+    }
+    .page-header {
+      background: white;
+      padding: 15px 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .logo {
+      max-width: 180px;
+      height: auto;
     }
     .container {
       background: white;
-      border-radius: 20px;
+      border-radius: 8px;
       padding: 40px;
-      max-width: 500px;
+      max-width: 600px;
       width: 100%;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin: 0 auto;
     }
     .header {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 35px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #0057B8;
     }
     h1 {
-      color: #0057B8;
+      color: #333;
       margin-bottom: 10px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    .header .icon {
+      font-size: 48px;
+      margin-bottom: 15px;
     }
     .status-item {
       display: flex;
-      align-items: center;
-      padding: 15px;
+      align-items: flex-start;
+      padding: 20px;
       margin-bottom: 15px;
-      border-radius: 10px;
+      border-radius: 8px;
       background: #f9f9f9;
+      border-left: 4px solid #ddd;
+      transition: all 0.3s;
     }
     .status-item.active {
+      background: #e7f3ff;
+      border-left-color: #0057B8;
+    }
+    .status-item.completed {
       background: #d4edda;
-      border-left: 4px solid #28a745;
+      border-left-color: #28a745;
     }
     .status-item.pending {
       background: #fff3cd;
-      border-left: 4px solid #ffc107;
+      border-left-color: #ffc107;
     }
     .status-icon {
       font-size: 32px;
-      margin-right: 15px;
+      margin-right: 18px;
+      min-width: 32px;
     }
     .status-text h3 {
-      margin-bottom: 5px;
+      margin-bottom: 6px;
       color: #333;
+      font-size: 17px;
+      font-weight: 600;
     }
     .status-text p {
       color: #666;
       font-size: 14px;
+      line-height: 1.5;
     }
     .loader {
       text-align: center;
-      margin: 20px 0;
+      margin: 30px 0;
     }
     .loader::after {
       content: '';
       display: inline-block;
-      width: 30px;
-      height: 30px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #0057B8;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0057B8;
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
@@ -80,31 +107,64 @@
     .hidden { display: none; }
     .refresh-btn {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       background: #0057B8;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      margin-top: 20px;
+      margin-top: 25px;
+      transition: all 0.3s;
     }
     .refresh-btn:hover {
       background: #003d82;
+      box-shadow: 0 4px 12px rgba(0,87,184,0.3);
+    }
+    .error-container {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .error-container .icon {
+      font-size: 56px;
+      margin-bottom: 20px;
+    }
+    .error-container h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 24px;
+    }
+    .error-container p {
+      color: #666;
+      line-height: 1.6;
+    }
+    .auto-refresh-note {
+      text-align: center;
+      color: #999;
+      font-size: 13px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
     }
   </style>
 </head>
 <body>
+  <div class="page-header">
+    <img src="https://www.gain-germany.org/fileadmin/Content/Download/GAiNLogoCMYK_ohne.png" alt="GAiN Austria" class="logo">
+  </div>
+
   <div class="container">
     <div class="header">
-      <h1>🎁 Geschenk-Status</h1>
+      <div class="icon">🎁</div>
+      <h1>Geschenk-Status</h1>
       <p style="color: #666; margin-top: 10px;">Verfolgen Sie Ihre Spende</p>
     </div>
 
     <div id="loader" class="loader"></div>
 
     <div id="statusContainer" class="hidden">
-      <div id="step1" class="status-item">
+      <div id="step1" class="status-item pending">
         <div class="status-icon">📧</div>
         <div class="status-text">
           <h3>E-Mail registriert</h3>
@@ -112,7 +172,7 @@
         </div>
       </div>
 
-      <div id="step2" class="status-item">
+      <div id="step2" class="status-item pending">
         <div class="status-icon">✅</div>
         <div class="status-text">
           <h3>E-Mail verifiziert</h3>
@@ -136,13 +196,19 @@
         </div>
       </div>
 
-      <button class="refresh-btn" onclick="checkStatus()">Status aktualisieren</button>
+      <button class="refresh-btn" onclick="checkStatus()">🔄 Status aktualisieren</button>
+
+      <p class="auto-refresh-note">
+        ℹ️ Status wird automatisch alle 30 Sekunden aktualisiert<br>
+        GAiN (Global Aid Network) Austria
+      </p>
     </div>
 
-    <div id="errorContainer" class="hidden" style="text-align: center;">
-      <div style="font-size: 48px; margin-bottom: 20px;">❌</div>
-      <h2 style="color: #0057B8; margin-bottom: 10px;">Fehler</h2>
-      <p id="errorMessage" style="color: #666;"></p>
+    <div id="errorContainer" class="hidden error-container">
+      <div class="icon">❌</div>
+      <h2>Status nicht verfügbar</h2>
+      <p id="errorMessage" style="margin-bottom: 20px;"></p>
+      <button class="refresh-btn" onclick="checkStatus()">Erneut versuchen</button>
     </div>
   </div>
 
@@ -183,31 +249,37 @@
 
       // Reset all to pending
       document.querySelectorAll('.status-item').forEach(item => {
-        item.classList.remove('active');
+        item.classList.remove('active', 'completed');
         item.classList.add('pending');
       });
 
       // Step 1: Always active if we got here
-      document.getElementById('step1').classList.add('active');
       document.getElementById('step1').classList.remove('pending');
+      document.getElementById('step1').classList.add('completed');
 
       // Step 2: Email verified
       if (data.donorVerified) {
-        document.getElementById('step2').classList.add('active');
         document.getElementById('step2').classList.remove('pending');
+        document.getElementById('step2').classList.add('completed');
       }
 
-      // Step 3 & 4: Completed
+      // Step 3: Waiting or completed
       if (data.status === 'COMPLETED') {
-        document.getElementById('step3').classList.add('active');
         document.getElementById('step3').classList.remove('pending');
-        document.getElementById('step4').classList.add('active');
-        document.getElementById('step4').classList.remove('pending');
-
+        document.getElementById('step3').classList.add('completed');
         document.getElementById('step3').querySelector('p').textContent =
           'Der Empfänger hat eine Nachricht gesendet';
+      } else if (data.donorVerified) {
+        document.getElementById('step3').classList.remove('pending');
+        document.getElementById('step3').classList.add('active');
+      }
+
+      // Step 4: Completed
+      if (data.status === 'COMPLETED') {
+        document.getElementById('step4').classList.remove('pending');
+        document.getElementById('step4').classList.add('completed');
         document.getElementById('step4').querySelector('p').textContent =
-          'Prüfen Sie Ihr E-Mail-Postfach!';
+          'Prüfen Sie Ihr E-Mail-Postfach! 📬';
       }
 
       // Expired
@@ -230,10 +302,10 @@
     // Auto-check on load
     checkStatus();
 
-    // Auto-refresh every 30 seconds if waiting
+    // Auto-refresh every 30 seconds if not completed
     setInterval(() => {
       const step4 = document.getElementById('step4');
-      if (!step4.classList.contains('active')) {
+      if (!step4.classList.contains('completed')) {
         checkStatus();
       }
     }, 30000);
