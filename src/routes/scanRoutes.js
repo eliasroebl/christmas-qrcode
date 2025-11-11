@@ -150,6 +150,11 @@ router.post('/upload-recipient', upload.single('photo'), async (req, res) => {
   try {
     const { token, message } = req.body;
 
+    // Debug logging
+    console.log('Upload recipient - req.body:', req.body);
+    console.log('Upload recipient - message value:', message);
+    console.log('Upload recipient - message type:', typeof message);
+
     if (!token) {
       return res.status(400).json({ error: 'Missing token' });
     }
@@ -176,7 +181,11 @@ router.post('/upload-recipient', upload.single('photo'), async (req, res) => {
     }
 
     // Update database with photo and message
-    await QRCodeModel.uploadRecipientContent(token, req.file.path, message || '');
+    // Handle empty message or whitespace-only message
+    const recipientMessage = (message && message.trim()) ? message.trim() : null;
+    console.log('Saving message to DB:', recipientMessage);
+
+    await QRCodeModel.uploadRecipientContent(token, req.file.path, recipientMessage);
 
     // Get updated QR code data
     const updatedQRCode = await QRCodeModel.findByToken(token);

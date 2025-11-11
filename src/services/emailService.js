@@ -78,8 +78,10 @@ class EmailService {
         attachments: resendAttachments.length > 0 ? resendAttachments : undefined
       });
 
-      console.log('✓ Email sent via Resend:', result.id);
-      return { success: true, messageId: result.id };
+      // Resend response structure: { data: { id: '...' }, error: null }
+      const emailId = result?.data?.id || result?.id || 'unknown';
+      console.log('✓ Email sent via Resend:', emailId);
+      return { success: true, messageId: emailId };
     } catch (error) {
       console.error('✗ Resend error:', error);
       throw error;
@@ -183,6 +185,15 @@ class EmailService {
   async sendThankYouEmail(qrCode) {
     const { donor_email, recipient_photo_path, recipient_message } = qrCode;
 
+    // Sanitize message - handle null, undefined, 'undefined', empty strings
+    const hasMessage = recipient_message &&
+                       recipient_message !== 'undefined' &&
+                       recipient_message.trim().length > 0;
+    const sanitizedMessage = hasMessage ? recipient_message.trim() : null;
+
+    console.log('Sending email - original message:', recipient_message);
+    console.log('Sending email - sanitized message:', sanitizedMessage);
+
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -209,10 +220,10 @@ class EmailService {
 
             <p>Der Empfänger in der Ukraine hat Ihr Geschenk erhalten und möchte sich bei Ihnen bedanken.</p>
 
-            ${recipient_message ? `
+            ${sanitizedMessage ? `
             <div class="message-box">
               <p><strong>Nachricht:</strong></p>
-              <p><em>"${recipient_message}"</em></p>
+              <p><em>"${sanitizedMessage}"</em></p>
             </div>
             ` : ''}
 
