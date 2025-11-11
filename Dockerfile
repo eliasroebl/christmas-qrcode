@@ -11,9 +11,6 @@ RUN npm ci --only=production
 # Copy application files
 COPY . .
 
-# Initialize database
-RUN npm run init-db
-
 # Create uploads directory
 RUN mkdir -p uploads
 

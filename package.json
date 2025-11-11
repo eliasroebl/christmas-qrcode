@@ -5,8 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "init-db": "node src/utils/initDb.js"
+    "dev": "nodemon server.js"
   },
   "keywords": [
     "qrcode",
