@@ -65,8 +65,8 @@ async function startServer() {
     await initializeTables();
     console.log(`📊 Database type: ${dbType}`);
 
-    // Start server
-    app.listen(PORT, () => {
+    // Start server - bind to 0.0.0.0 for Railway
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📱 Scan URL: ${process.env.APP_URL || `http://localhost:${PORT}`}`);
     });
