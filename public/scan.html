@@ -182,7 +182,7 @@
       <p id="subtitle" style="color: #666; margin-top: 10px;"></p>
     </div>
 
-    <div id="message" class="message"></div>
+    <div id="statusMessage" class="message"></div>
     <div id="loader" class="loader"></div>
 
     <!-- Donor Form (German) -->
@@ -324,7 +324,7 @@
     }
 
     function showMessage(type, text) {
-      const messageEl = document.getElementById('message');
+      const messageEl = document.getElementById('statusMessage');
       messageEl.className = `message ${type}`;
       messageEl.textContent = text;
       messageEl.style.display = 'block';
@@ -374,10 +374,13 @@
     document.getElementById('recipientForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const messageValue = document.getElementById('message').value;
+      console.log('Frontend - message textarea value:', messageValue);
+
       const formData = new FormData();
       formData.append('token', qrToken);
       formData.append('photo', document.getElementById('photo').files[0]);
-      formData.append('message', document.getElementById('message').value);
+      formData.append('message', messageValue);
 
       try {
         showLoader(true);
