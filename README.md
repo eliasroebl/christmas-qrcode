@@ -4,38 +4,42 @@ Eine Web-Applikation, die österreichische Spender mit ukrainischen Empfängern 
 
 ## 💡 Konzept
 
-1. **Hilfsorganisation** druckt QR-Codes und klebt sie auf Geschenkpakete
+1. **Hilfsorganisation (GAiN Austria)** druckt QR-Codes und klebt sie auf Geschenkpakete
 2. **Spender (AT)** scannt QR-Code → gibt E-Mail-Adresse ein
 3. **Paket** wird in die Ukraine verschickt
-4. **Empfänger (UA)** öffnet Paket → scannt QR-Code → lädt Dankesfoto hoch
-5. **Spender** erhält automatisch E-Mail mit Foto und Nachricht
+4. **Empfänger (UA)** öffnet Paket → scannt QR-Code → lädt bis zu 5 Dankesfotos hoch
+5. **Spender** erhält automatisch E-Mail mit Fotos und Nachricht
 
 ## ✨ Features
 
-- 📱 **QR-Code Generierung**: Erstellt 100-300 eindeutige QR-Codes als PDF (15/Seite)
+- 📱 **QR-Code Generierung**: Erstellt 100-500 eindeutige QR-Codes als PDF (15/Seite)
+- 🖼️ **Multi-Foto Upload**: Empfänger können 1-5 Fotos gleichzeitig hochladen
 - 🇦🇹 **Deutsche UI**: Für österreichische Spender
 - 🇺🇦 **Ukrainische UI**: Für ukrainische Empfänger
 - 📧 **E-Mail-Verifizierung**: Sicherstellen der korrekten E-Mail-Adresse
-- 📸 **Foto-Upload**: Max. 5MB, JPG/PNG
-- 💌 **Automatischer E-Mail-Versand**: Mit Foto und Nachricht
-- 📊 **Admin-Dashboard**: Statistiken und Verwaltung
+- 📸 **Foto-Upload**: Bis zu 5 Fotos, max. 5MB pro Foto, JPG/PNG
+- 💌 **Automatischer E-Mail-Versand**: Mit allen Fotos und Nachricht
+- 📊 **Admin-Dashboard**: Statistiken, Verwaltung und QR-Code-Viewer
 - 🔒 **DSGVO-konform**: Auto-Löschung nach 12 Monaten
 - 🚫 **Datenschutz**: Keine direkten Kontaktdaten-Austausch
+- ✅ **Spam-optimiert**: Multipart-E-Mails mit Plain-Text-Versionen
 
 ## 🛠️ Tech Stack
 
 - **Backend**: Node.js + Express
-- **Database**: SQLite
+- **Database**: PostgreSQL (Production) / SQLite (Development)
 - **QR-Generierung**: qrcode + PDFKit
-- **E-Mail**: Nodemailer
-- **Upload**: Multer
+- **E-Mail**: Resend API (Railway-kompatibel) / Nodemailer SMTP
+- **Upload**: Multer (multi-file support)
 - **Frontend**: Vanilla HTML/CSS/JS
+- **Deployment**: Railway (empfohlen)
 
 ## 📋 Voraussetzungen
 
-- Node.js (v16 oder höher)
-- npm oder yarn
-- SMTP E-Mail-Server (z.B. Gmail, SendGrid)
+- Node.js (v18 oder höher)
+- npm
+- PostgreSQL (für Production) oder SQLite (für Development)
+- Resend Account (kostenlos bis 3.000 E-Mails/Monat) ODER SMTP-Server
 
 ## 🚀 Installation
 
@@ -60,47 +64,46 @@ Kopiere `.env.example` zu `.env`:
 cp .env.example .env
 ```
 
-Bearbeite `.env` und fülle folgende Werte aus:
+Bearbeite `.env`:
 
 ```env
 # Server
 PORT=3000
 NODE_ENV=production
-
-# E-Mail (Beispiel für Gmail)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=ihre-email@gmail.com
-EMAIL_PASSWORD=ihr-app-passwort
-EMAIL_FROM=noreply@ihre-organisation.at
-
-# App URL (Produktions-URL)
 APP_URL=https://ihre-domain.com
+
+# E-Mail Option 1: Resend (empfohlen für Railway)
+RESEND_API_KEY=re_your_key_here
+EMAIL_FROM=noreply@ihre-domain.com
+
+# E-Mail Option 2: SMTP (funktioniert nicht auf Railway!)
+# EMAIL_HOST=smtp.gmail.com
+# EMAIL_PORT=587
+# EMAIL_USER=ihre-email@gmail.com
+# EMAIL_PASSWORD=ihr-app-passwort
+# EMAIL_FROM=noreply@ihre-organisation.at
 
 # Admin-Passwort (ÄNDERN!)
 ADMIN_PASSWORD=sicheres-passwort-hier
+
+# Datenbank (optional, für lokale Entwicklung)
+DB_PATH=./database.sqlite
 ```
 
-**Gmail App-Passwort erstellen:**
-1. Google-Konto → Sicherheit
-2. 2-Faktor-Authentifizierung aktivieren
-3. App-Passwörter → "Mail" auswählen
-4. Generiertes Passwort in `.env` einfügen
+**Resend Setup** (empfohlen):
+1. Account erstellen: [resend.com](https://resend.com)
+2. API Key erstellen
+3. Domain verifizieren (für Production)
+4. Siehe `RESEND_SETUP.md` für Details
 
-### 4. Datenbank initialisieren
+### 4. Server starten
 
-```bash
-npm run init-db
-```
-
-### 5. Server starten
-
-**Entwicklung:**
+**Entwicklung (SQLite):**
 ```bash
 npm run dev
 ```
 
-**Produktion:**
+**Produktion (PostgreSQL auf Railway):**
 ```bash
 npm start
 ```
@@ -111,11 +114,12 @@ Server läuft auf `http://localhost:3000`
 
 ### Admin-Bereich
 
-1. Öffne `http://localhost:3000/admin.html`
+1. Öffne `http://localhost:3000/admin`
 2. Login mit dem Passwort aus `.env` (Standard: `admin123`)
-3. QR-Codes generieren (100-300 Stück)
+3. QR-Codes generieren (100-500 Stück)
 4. PDF herunterladen und ausdrucken
 5. QR-Codes auf Geschenkpakete kleben
+6. **Neu:** Einzelne QR-Codes anzeigen mit "QR anzeigen"-Button
 
 ### Workflow
 
@@ -128,13 +132,15 @@ Server läuft auf `http://localhost:3000`
 **Schritt 2: Empfänger (Ukraine)**
 - Öffnet Geschenkpaket
 - Scannt denselben QR-Code → Ukrainische UI erscheint
-- Lädt Foto hoch (max. 5MB)
+- **Wählt 1-5 Fotos aus** (max. 5MB pro Foto)
+- Sieht Vorschau-Thumbnails aller ausgewählten Fotos
 - Schreibt optionale Nachricht
 - Sendet Dankesnachricht
 
 **Schritt 3: Automatisch**
 - System sendet E-Mail an Spender
-- E-Mail enthält Foto und Nachricht
+- E-Mail enthält **alle hochgeladenen Fotos** als Anhänge
+- Fotos heißen: `dankesfoto_1.jpg`, `dankesfoto_2.jpg`, etc.
 - Spender erhält persönliche Dankesnachricht
 
 ## 🗂️ Projektstruktur
@@ -144,11 +150,11 @@ christmas-qrcode/
 ├── server.js                 # Express-Server
 ├── package.json
 ├── .env                      # Umgebungsvariablen (nicht in Git!)
-├── database.sqlite           # SQLite DB (wird erstellt)
+├── database.sqlite           # SQLite DB (Development)
 │
 ├── src/
 │   ├── config/
-│   │   └── database.js       # DB-Konfiguration
+│   │   └── database.js       # DB-Konfiguration (PostgreSQL/SQLite)
 │   │
 │   ├── models/
 │   │   ├── QRCode.js         # QR-Code Model
@@ -156,22 +162,19 @@ christmas-qrcode/
 │   │
 │   ├── routes/
 │   │   ├── qrRoutes.js       # QR-Generierung
-│   │   ├── scanRoutes.js     # Scan & Upload
+│   │   ├── scanRoutes.js     # Scan & Upload (Multi-File)
 │   │   └── adminRoutes.js    # Admin-Endpoints
 │   │
 │   ├── services/
 │   │   ├── qrService.js      # QR/PDF-Generierung
-│   │   └── emailService.js   # E-Mail-Versand
+│   │   └── emailService.js   # E-Mail (Resend/SMTP)
 │   │
-│   └── utils/
-│       └── initDb.js         # DB-Initialisierung
-│
 ├── public/                   # Frontend
 │   ├── index.html           # Landingpage
-│   ├── scan.html            # Scan-Seite (DE/UA)
+│   ├── scan.html            # Scan-Seite (DE/UA, Multi-Upload)
 │   ├── verify.html          # E-Mail-Verifizierung
 │   ├── status.html          # Status-Tracking
-│   ├── admin.html           # Admin-Dashboard
+│   ├── admin.html           # Admin-Dashboard + QR Viewer
 │   └── privacy.html         # Datenschutzerklärung
 │
 └── uploads/                 # Hochgeladene Fotos (nicht in Git!)
@@ -182,6 +185,7 @@ christmas-qrcode/
 ### QR-Code Generierung
 ```
 POST /api/qr/generate
+Headers: Authorization: Bearer {ADMIN_PASSWORD}
 Body: { "count": 100 }
 → Returns: PDF-Datei
 ```
@@ -201,13 +205,13 @@ Body: {
 GET /api/scan/verify/:verificationToken
 ```
 
-### Empfänger-Upload
+### Empfänger-Upload (Multi-File)
 ```
 POST /api/scan/upload-recipient
 FormData: {
   "token": "qr-token",
-  "photo": File,
-  "message": "Danke!"
+  "photos": File[], // 1-5 Dateien
+  "message": "Дякую!"
 }
 ```
 
@@ -232,149 +236,171 @@ Header: Authorization: Bearer {ADMIN_PASSWORD}
 
 ### `qr_codes` Tabelle
 
-| Feld | Typ | Beschreibung |
-|------|-----|--------------|
-| id | INTEGER | Primary Key |
-| token | TEXT | Eindeutiger QR-Token (UUID) |
-| status | TEXT | UNUSED, DONOR_REGISTERED, COMPLETED, EXPIRED |
-| donor_email | TEXT | E-Mail des Spenders |
-| donor_verified | INTEGER | 0/1 (E-Mail bestätigt?) |
-| verification_token | TEXT | Token für E-Mail-Verifizierung |
-| recipient_photo_path | TEXT | Pfad zum hochgeladenen Foto |
-| recipient_message | TEXT | Dankes-Nachricht |
-| created_at | DATETIME | Erstellungsdatum |
-| donor_scanned_at | DATETIME | Erster Scan (Spender) |
-| recipient_scanned_at | DATETIME | Zweiter Scan (Empfänger) |
-| email_sent_at | DATETIME | E-Mail versandt |
-| expires_at | DATETIME | Ablaufdatum (18 Monate) |
+| Feld | Typ (PostgreSQL) | Typ (SQLite) | Beschreibung |
+|------|------------------|--------------|--------------|
+| id | SERIAL | INTEGER | Primary Key |
+| token | VARCHAR(255) | TEXT | Eindeutiger QR-Token (UUID) |
+| status | VARCHAR(50) | TEXT | UNUSED, DONOR_REGISTERED, COMPLETED, EXPIRED |
+| donor_email | VARCHAR(255) | TEXT | E-Mail des Spenders |
+| donor_verified | BOOLEAN | INTEGER | TRUE/FALSE (E-Mail bestätigt?) |
+| verification_token | VARCHAR(255) | TEXT | Token für E-Mail-Verifizierung |
+| recipient_photo_path | TEXT | TEXT | **JSON Array** mit Foto-Pfaden |
+| recipient_message | TEXT | TEXT | Dankes-Nachricht |
+| created_at | TIMESTAMP | DATETIME | Erstellungsdatum |
+| expires_at | TIMESTAMP | DATETIME | Ablaufdatum (18 Monate) |
+| completed_at | TIMESTAMP | DATETIME | Abschlussdatum |
+| email_sent_at | TIMESTAMP | DATETIME | E-Mail versandt |
+
+**Beispiel `recipient_photo_path`:**
+```json
+["uploads/abc123.jpg", "uploads/def456.jpg", "uploads/ghi789.jpg"]
+```
 
 ### `email_log` Tabelle
 
 | Feld | Typ | Beschreibung |
 |------|-----|--------------|
-| id | INTEGER | Primary Key |
+| id | SERIAL/INTEGER | Primary Key |
 | qr_code_id | INTEGER | Foreign Key zu qr_codes |
-| recipient_email | TEXT | Empfänger-E-Mail |
-| subject | TEXT | E-Mail-Betreff |
-| sent_at | DATETIME | Versandzeitpunkt |
-| status | TEXT | sent, failed, bounced |
+| recipient_email | VARCHAR(255)/TEXT | Empfänger-E-Mail |
+| subject | VARCHAR(255)/TEXT | E-Mail-Betreff |
+| sent_at | TIMESTAMP/DATETIME | Versandzeitpunkt |
+| status | VARCHAR(50)/TEXT | sent, failed |
 | error_message | TEXT | Fehlermeldung (falls failed) |
 
-## 🚢 Deployment
+## 🚢 Deployment auf Railway
 
-### Railway (empfohlen)
+### 1. PostgreSQL-Datenbank hinzufügen
 
-1. **Account erstellen**: [railway.app](https://railway.app)
-2. **GitHub verbinden**
-3. **New Project** → "Deploy from GitHub"
-4. **Repository auswählen**: `christmas-qrcode`
-5. **Umgebungsvariablen hinzufügen** (alle aus `.env`)
-6. **Deploy!**
+1. Railway-Projekt öffnen
+2. **"New"** → **"Database"** → **"Add PostgreSQL"**
+3. Railway erstellt automatisch `DATABASE_URL`
+4. ✅ Fertig! App erkennt PostgreSQL automatisch
 
-Railway stellt automatisch eine URL bereit (z.B. `your-app.up.railway.app`)
+### 2. Umgebungsvariablen setzen
 
-### Render
+```env
+# Railway setzt automatisch:
+DATABASE_URL=postgresql://...  # Von Railway
 
-1. **Account erstellen**: [render.com](https://render.com)
-2. **New Web Service**
-3. **GitHub Repository verbinden**
-4. Build Command: `npm install && npm run init-db`
-5. Start Command: `npm start`
-6. **Umgebungsvariablen hinzufügen**
+# Du musst setzen:
+NODE_ENV=production
+APP_URL=https://your-app.up.railway.app
+RESEND_API_KEY=re_your_key
+EMAIL_FROM=noreply@your-domain.com
+ADMIN_PASSWORD=your-secure-password
+```
 
-### Vercel (nur für Static Hosting, Backend separat deployen)
+### 3. Deploy
 
-Nicht empfohlen für dieses Projekt (benötigt Serverless-Anpassungen).
+- Push zu GitHub → Railway deployed automatisch
+- Oder: Manuell deployen im Railway Dashboard
+
+### Wichtige Hinweise für Railway:
+
+✅ **PostgreSQL wird automatisch erkannt** (via `DATABASE_URL`)
+✅ **Tabellen werden automatisch erstellt** beim Start
+✅ **Daten bleiben nach Deployments erhalten**
+❌ **SMTP funktioniert NICHT** (Ports 587/465 blockiert) → Verwende Resend!
 
 ## 🔒 Sicherheit
 
-- ✅ HTTPS verwenden (Let's Encrypt)
+- ✅ HTTPS verwenden (Railway hat automatisch SSL)
 - ✅ Admin-Passwort ändern
 - ✅ E-Mail-Credentials sicher speichern
-- ✅ Rate Limiting implementiert
-- ✅ File-Upload-Validierung (Größe, Typ)
+- ✅ File-Upload-Validierung (Größe, Typ, Anzahl)
 - ✅ SQL-Injection-Schutz (Prepared Statements)
+- ✅ PostgreSQL/SQLite Boolean-Handling kompatibel
 
 ## 🧪 Testing
 
-### Manueller Test-Workflow
+### Lokaler Test
 
-1. **QR-Codes generieren**:
-   ```bash
-   # Admin-Dashboard öffnen
-   http://localhost:3000/admin.html
-   # Login → 100 QR-Codes generieren
-   ```
+1. **QR-Codes generieren**: `/admin` → Login → 100 QR-Codes generieren
+2. **Spender-Flow**: QR scannen → E-Mail eingeben → E-Mail bestätigen
+3. **Empfänger-Flow**: Gleichen QR scannen → **1-5 Fotos wählen** → Nachricht → Senden
+4. **E-Mail prüfen**: Spender erhält E-Mail mit **allen Fotos** als Anhänge
 
-2. **Spender-Flow testen**:
-   ```bash
-   # Einen QR-Code aus PDF scannen oder URL kopieren
-   http://localhost:3000/scan?code=GENERATED-TOKEN
-   # E-Mail eingeben → Bestätigungs-E-Mail prüfen
-   ```
+### Test mit mehreren Fotos
 
-3. **Empfänger-Flow testen**:
-   ```bash
-   # Nach E-Mail-Bestätigung: Denselben QR erneut scannen
-   # Foto hochladen → Nachricht schreiben → Absenden
-   ```
+1. Wähle 5 unterschiedliche Fotos aus
+2. Sehe Vorschau-Grid (5 Thumbnails)
+3. Upload → Prüfe E-Mail
+4. E-Mail sollte 5 Anhänge haben: `dankesfoto_1.jpg` bis `dankesfoto_5.jpg`
 
-4. **E-Mail prüfen**:
-   - Spender erhält E-Mail mit Foto
+## 📧 E-Mail-Deliverability
 
-## 📊 Monitoring
+### Spam vermeiden
 
-**Logs prüfen:**
-```bash
-# Entwicklung
-npm run dev
+✅ **Domain verifizieren** in Resend (SPF, DKIM, DMARC)
+✅ **Plain-Text-Version** automatisch inkludiert
+✅ **Keine Emojis** in Subject-Lines
+✅ **Multipart-E-Mails** (HTML + Text)
 
-# Produktion (mit PM2)
-pm2 logs
-```
+### Mail-Tester verwenden
 
-**Datenbank prüfen:**
-```bash
-sqlite3 database.sqlite
-> SELECT * FROM qr_codes LIMIT 10;
-> SELECT COUNT(*) FROM qr_codes WHERE status='COMPLETED';
-```
+1. Gehe zu: [mail-tester.com](https://www.mail-tester.com)
+2. Kopiere Test-E-Mail-Adresse
+3. Registriere QR mit Test-Adresse
+4. Prüfe Score (sollte 9/10+ sein)
 
 ## 🐛 Troubleshooting
 
 ### E-Mails werden nicht versendet
 
-1. SMTP-Credentials in `.env` prüfen
-2. Gmail: App-Passwort verwenden (nicht normales Passwort)
-3. Firewall-Regeln prüfen (Port 587)
+1. **Resend**: Domain verifiziert? API Key korrekt?
+2. **SMTP auf Railway**: Funktioniert NICHT → Verwende Resend!
+3. Logs prüfen: `Resend API response` oder `SMTP error`
 
-### QR-Code-Status bleibt "UNUSED"
+### Mehrere Fotos werden nicht hochgeladen
 
-1. E-Mail-Verifizierung abgeschlossen?
-2. Browser-Konsole auf Fehler prüfen
-3. Server-Logs prüfen
+1. Browser-Konsole prüfen: `Uploading X photo(s)`
+2. Server-Logs: `photos count: X`
+3. Dateigröße: Jedes Foto < 5MB?
+4. Format: Nur JPG/PNG erlaubt
 
-### Foto-Upload schlägt fehl
+### PostgreSQL Fehler auf Railway
 
-1. Dateigröße < 5MB?
-2. Format: JPG/PNG?
-3. `uploads/`-Verzeichnis existiert und ist beschreibbar?
+1. PostgreSQL hinzugefügt? `DATABASE_URL` gesetzt?
+2. Tables automatisch erstellt? Logs: `✓ Database tables initialized`
+3. Boolean-Werte: `donor_verified` sollte TRUE/FALSE sein (nicht 1/0)
+
+### Container stoppt auf Railway
+
+1. Server bindet an `0.0.0.0`? ✅ (sollte)
+2. Health-Check: `/health` endpoint funktioniert?
+3. Logs: `✅ Application ready` sollte erscheinen
 
 ## 🔄 Updates & Wartung
 
-### Datenbank-Cleanup (älter als 12 Monate)
+### Automatisches Cleanup (PostgreSQL Cron-Job)
+
+In Railway kannst du einen Cron-Job einrichten:
+
+```sql
+DELETE FROM qr_codes WHERE created_at < NOW() - INTERVAL '12 months';
+```
+
+### Manuelles Cleanup (SQLite)
 
 ```bash
-# Manuell in SQLite
 sqlite3 database.sqlite
 > DELETE FROM qr_codes WHERE created_at < datetime('now', '-12 months');
 ```
 
-**Automatisches Cleanup** (optional via Cron-Job):
-```bash
-# Crontab eintragen
-0 2 * * * cd /path/to/app && sqlite3 database.sqlite "DELETE FROM qr_codes WHERE created_at < datetime('now', '-12 months');"
-```
+## 🆕 Changelog
+
+### Version 2.0 (Aktuell)
+- ✨ **Multi-Photo Upload**: 1-5 Fotos gleichzeitig
+- ✨ **PostgreSQL Support**: Automatische DB-Erkennung
+- ✨ **Resend Integration**: Railway-kompatibel
+- ✨ **Admin QR Viewer**: QR-Codes direkt anzeigen
+- 🐛 **E-Mail Deliverability**: Multipart, Plain-Text
+- 🐛 **Boolean Handling**: PostgreSQL TRUE/FALSE kompatibel
+- 🐛 **Railway Deployment**: Container-Stabilität
+
+### Version 1.0
+- Initial Release mit Single-Photo Upload
 
 ## 📝 Lizenz
 
@@ -388,10 +414,9 @@ Contributions sind willkommen! Bitte erstelle ein Issue oder Pull Request.
 
 Bei Fragen oder Problemen:
 - GitHub Issues: [github.com/eliasroebl/christmas-qrcode/issues](https://github.com/eliasroebl/christmas-qrcode/issues)
-- E-Mail: [Ihre E-Mail]
 
 ---
 
-**Entwickelt mit ❤️ für ukrainische Hilfsorganisationen**
+**Entwickelt mit ❤️ für GAiN Austria und ukrainische Hilfsorganisationen**
 
 🇦🇹 🤝 🇺🇦

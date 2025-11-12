@@ -17,195 +17,307 @@ npm install
 
 ### 3. Umgebungsvariablen konfigurieren
 
-Die `.env`-Datei existiert bereits, aber du musst die E-Mail-Einstellungen anpassen:
+Kopiere `.env.example` zu `.env`:
 
-**Option A: Gmail verwenden**
+```bash
+cp .env.example .env
+```
 
-1. Gehe zu deinem Google-Konto: https://myaccount.google.com/
-2. Sicherheit → 2-Faktor-Authentifizierung aktivieren
-3. Sicherheit → App-Passwörter
-4. Wähle "Mail" → Gerät auswählen
-5. Kopiere das generierte 16-stellige Passwort
+**Option A: Resend (Empfohlen für Railway/Production)**
+
+1. Konto erstellen: https://resend.com (kostenlos bis 3.000 E-Mails/Monat)
+2. API Key generieren: Dashboard → API Keys → Create API Key
+3. (Optional) Domain verifizieren für Production: Dashboard → Domains
 
 Bearbeite `.env`:
 ```env
+# Resend Email
+RESEND_API_KEY=re_your_key_here
+EMAIL_FROM=onboarding@resend.dev  # Für Tests, oder deine-domain.com nach Verifizierung
+
+# Admin Passwort
+ADMIN_PASSWORD=dein-sicheres-passwort
+
+# App URL (für lokale Entwicklung)
+APP_URL=http://localhost:3000
+```
+
+**Option B: Gmail (Nur für lokale Tests, funktioniert NICHT auf Railway!)**
+
+1. Google-Konto → Sicherheit → 2-Faktor-Authentifizierung aktivieren
+2. Sicherheit → App-Passwörter → "Mail" auswählen
+3. 16-stelliges Passwort kopieren
+
+Bearbeite `.env`:
+```env
+# Gmail SMTP
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=deine-email@gmail.com
-EMAIL_PASSWORD=xxxx xxxx xxxx xxxx  # 16-stelliges App-Passwort
+EMAIL_PASSWORD=xxxx xxxx xxxx xxxx  # App-Passwort (ohne Leerzeichen!)
 EMAIL_FROM=deine-email@gmail.com
-```
 
-**Option B: SendGrid verwenden (empfohlen für Produktion)**
-
-1. Account erstellen: https://sendgrid.com/
-2. API-Key generieren
-3. SMTP-Credentials notieren
-
-Bearbeite `.env`:
-```env
-EMAIL_HOST=smtp.sendgrid.net
-EMAIL_PORT=587
-EMAIL_USER=apikey
-EMAIL_PASSWORD=dein-sendgrid-api-key
-EMAIL_FROM=noreply@deine-domain.com
-```
-
-**Admin-Passwort ändern:**
-```env
+# Admin
 ADMIN_PASSWORD=dein-sicheres-passwort
+APP_URL=http://localhost:3000
 ```
 
-### 4. Datenbank initialisieren
+### 4. Server starten
 
 ```bash
-npm run init-db
-```
-
-Du solltest sehen:
-```
-✓ Connected to SQLite database
-✓ Database tables created successfully
-```
-
-### 5. Server starten
-
-```bash
+# Entwicklung (SQLite)
 npm run dev
 ```
 
+**Erwartete Ausgabe:**
+```
+✓ Email service using: Resend  (oder: SMTP (Nodemailer))
+✓ Connected to SQLite database
+✓ Database tables initialized
+📊 Database type: sqlite
+🚀 Server running on port 3000
+📱 Scan URL: http://localhost:3000
+✅ Application ready
+```
+
 Öffne im Browser: http://localhost:3000
+
+**Hinweis:** Datenbank-Tabellen werden automatisch beim Start erstellt - kein manuelles `init-db` nötig!
 
 ## 📱 Erste Schritte
 
 ### Admin-Dashboard öffnen
 
-1. Gehe zu: http://localhost:3000/admin.html
+1. Gehe zu: http://localhost:3000/admin
 2. Login mit deinem `ADMIN_PASSWORD` aus `.env`
 3. Klicke auf "PDF Generieren & Herunterladen"
 4. Wähle z.B. 10 QR-Codes zum Testen
 5. PDF wird heruntergeladen
+
+**Neu:** Klicke auf "📱 QR anzeigen" neben jedem QR-Code, um ihn direkt im Browser anzuzeigen!
 
 ### QR-Code testen
 
 **Als Spender (Österreich):**
 
 1. Öffne das heruntergeladene PDF
-2. Scanne einen QR-Code mit deinem Handy ODER
-3. Kopiere die URL aus dem Browser-Network-Tab
-4. Gib deine E-Mail-Adresse ein
-5. Bestätige deine E-Mail (check Posteingang!)
+2. Scanne einen QR-Code mit deinem Handy ODER kopiere die URL
+3. Gib deine E-Mail-Adresse ein
+4. Bestätige deine E-Mail (check Posteingang!)
 
 **Als Empfänger (Ukraine):**
 
 1. Nach E-Mail-Bestätigung: Scanne denselben QR-Code nochmal
 2. Die Seite zeigt jetzt die ukrainische UI
-3. Lade ein Testbild hoch
-4. Schreibe eine Nachricht
-5. Absenden
+3. **Neu: Wähle 1-5 Fotos aus** (nicht nur eines!)
+4. Sehe Vorschau-Thumbnails aller Fotos
+5. Schreibe eine optionale Nachricht
+6. Absenden
 
 **Ergebnis:**
 
-Die Spender-E-Mail erhält automatisch eine E-Mail mit:
-- Dem hochgeladenen Foto als Anhang
-- Der Nachricht im E-Mail-Text
+Die Spender-E-Mail erhält automatisch:
+- **Alle hochgeladenen Fotos** als Anhänge (`dankesfoto_1.jpg`, `dankesfoto_2.jpg`, etc.)
+- Die Nachricht im E-Mail-Text
+- Plain-Text-Version für bessere Spam-Scores
 
-## 🐳 Docker Setup (Optional)
+## 🌐 Deployment auf Railway (Empfohlen)
 
-Wenn du Docker bevorzugst:
+Railway ist die empfohlene Plattform, weil:
+- ✅ Kostenloser Tier verfügbar
+- ✅ PostgreSQL-Integration
+- ✅ Automatisches HTTPS
+- ✅ Einfaches Deployment
+- ✅ **Resend funktioniert** (SMTP ist blockiert!)
+
+### Schritt 1: Railway-Account erstellen
+
+1. Gehe zu: https://railway.app
+2. "Start a New Project" → "Deploy from GitHub"
+3. Verbinde dein GitHub-Konto
+4. Wähle das `christmas-qrcode` Repository
+
+### Schritt 2: PostgreSQL hinzufügen
+
+1. In deinem Railway-Projekt: **"New"** → **"Database"** → **"Add PostgreSQL"**
+2. Railway erstellt automatisch `DATABASE_URL` → App erkennt PostgreSQL automatisch
+3. ✅ Fertig! Daten bleiben nach Deployments erhalten
+
+### Schritt 3: Environment Variables setzen
+
+Gehe zu: Service → **"Variables"** Tab
+
+**Erforderliche Variablen:**
+```env
+NODE_ENV=production
+APP_URL=https://your-app.up.railway.app  # Deine Railway-URL
+RESEND_API_KEY=re_your_key_here
+EMAIL_FROM=noreply@your-domain.com  # Oder onboarding@resend.dev für Tests
+ADMIN_PASSWORD=dein-sicheres-passwort
+```
+
+**Railway setzt automatisch:**
+```env
+DATABASE_URL=postgresql://...  # Von Railway automatisch gesetzt
+PORT=...  # Von Railway automatisch gesetzt
+```
+
+### Schritt 4: Deploy
+
+- Push zu GitHub → Railway deployed automatisch
+- Oder: Klicke "Deploy" im Railway Dashboard
+
+**Was passiert beim Deployment:**
+1. Railway baut die App
+2. Server startet und bindet an `0.0.0.0`
+3. Datenbank-Tabellen werden automatisch erstellt
+4. App ist unter `https://your-app.up.railway.app` erreichbar
+
+### Schritt 5: Testen
+
+1. Öffne: `https://your-app.up.railway.app/admin`
+2. Login mit Admin-Passwort
+3. Generiere QR-Codes
+4. Teste den kompletten Workflow
+
+## ⚠️ Wichtige Hinweise für Railway
+
+### ✅ Was funktioniert:
+- PostgreSQL (automatisch erkannt via `DATABASE_URL`)
+- Resend Email API
+- File Uploads (im Container gespeichert)
+- HTTPS (automatisch)
+
+### ❌ Was NICHT funktioniert:
+- SMTP E-Mail (Ports 587/465 blockiert) → **Verwende Resend!**
+- SQLite (Daten gehen bei jedem Deployment verloren) → **Verwende PostgreSQL!**
+
+## 📧 E-Mail-Setup (Production)
+
+### Resend Domain verifizieren (für Production)
+
+Damit du E-Mails an beliebige Empfänger senden kannst:
+
+1. Gehe zu: https://resend.com/domains
+2. Klicke "Add Domain"
+3. Gib deine Domain ein (z.B. `gain-austria.org`)
+4. Füge die DNS-Records hinzu (SPF, DKIM, DMARC)
+5. Warte auf Verifizierung (~5-60 Minuten)
+6. Update `EMAIL_FROM` in Railway: `noreply@gain-austria.org`
+
+**Ohne Domain-Verifizierung:** Kannst nur an deine eigene E-Mail senden (gut für Tests).
+
+## 🧪 Testing & Debugging
+
+### Lokale Tests
+
+**Mit mehreren Fotos testen:**
+```bash
+# Browser öffnen
+http://localhost:3000/scan?code=TEST-TOKEN
+
+# Als Empfänger:
+1. Wähle 5 verschiedene Fotos aus
+2. Sehe Vorschau-Grid mit 5 Thumbnails
+3. Upload → Prüfe Logs: "Uploading 5 photo(s)"
+4. Prüfe E-Mail: 5 Anhänge (dankesfoto_1.jpg - dankesfoto_5.jpg)
+```
+
+### Railway Logs prüfen
 
 ```bash
-# .env-Datei anpassen (siehe oben)
+# Im Railway Dashboard:
+Service → "Deployments" → Aktuellstes Deployment → "View Logs"
 
-# Docker-Container starten
-docker-compose up -d
-
-# Logs anzeigen
-docker-compose logs -f
+# Erwartete Ausgabe:
+✓ Connected to PostgreSQL database
+✓ Email service using: Resend
+✓ Database tables initialized
+📊 Database type: postgres
+🚀 Server running on port 8080
+✅ Application ready
 ```
 
-Server läuft auf: http://localhost:3000
+### Häufige Fehler & Lösungen
 
-## 🌐 Deployment (Produktion)
+**Container stoppt auf Railway:**
+- ✅ Lösung: Server bindet an `0.0.0.0` (bereits implementiert)
+- Check Logs: `✅ Application ready` sollte erscheinen
 
-### Railway (Empfohlen, kostenlos)
+**E-Mails kommen nicht an:**
+- Resend: Domain verifiziert? API Key korrekt?
+- SMTP: Funktioniert NICHT auf Railway → Verwende Resend!
+- Logs: `✗ Resend API error` oder `✗ SMTP error`
 
-1. Erstelle Account: https://railway.app
-2. "New Project" → "Deploy from GitHub"
-3. Repository auswählen
-4. **Environment Variables** hinzufügen (alle aus `.env`):
-   ```
-   NODE_ENV=production
-   EMAIL_HOST=smtp.gmail.com
-   EMAIL_PORT=587
-   EMAIL_USER=...
-   EMAIL_PASSWORD=...
-   EMAIL_FROM=...
-   APP_URL=https://deine-railway-url.up.railway.app
-   ADMIN_PASSWORD=...
-   ```
-5. Deploy!
+**PostgreSQL-Fehler:**
+- PostgreSQL in Railway hinzugefügt? `DATABASE_URL` gesetzt?
+- Logs: `✓ Connected to PostgreSQL database` sollte erscheinen
+- Boolean-Werte: `donor_verified` sollte TRUE/FALSE sein
 
-Railway generiert automatisch eine URL wie: `your-app.up.railway.app`
+**Mehrere Fotos werden nicht hochgeladen:**
+- Browser-Konsole: `Uploading X photo(s)` prüfen
+- Server-Logs: `photos count: X` prüfen
+- Dateigröße: Jedes Foto < 5MB?
+- Format: Nur JPG/PNG
 
-**WICHTIG:** Setze `APP_URL` auf deine Railway-URL!
+## 🔒 Sicherheits-Checkliste
 
-### Render.com
+Vor Production-Deployment:
 
-1. Account erstellen: https://render.com
-2. "New Web Service"
-3. GitHub-Repository verbinden
-4. Settings:
-   - **Build Command**: `npm install && npm run init-db`
-   - **Start Command**: `npm start`
-5. Environment Variables hinzufügen (siehe Railway)
-6. Deploy!
+- [ ] `ADMIN_PASSWORD` geändert (nicht `admin123`!)
+- [ ] `APP_URL` auf Railway-URL gesetzt
+- [ ] Resend Domain verifiziert (SPF, DKIM, DMARC)
+- [ ] PostgreSQL-Datenbank hinzugefügt
+- [ ] HTTPS aktiv (Railway macht automatisch)
+- [ ] Kompletten Workflow getestet
+- [ ] Datenschutzerklärung angepasst (Organisation, Kontakt)
 
-## ✅ Checkliste vor Produktiv-Betrieb
+## 📊 Monitoring
 
-- [ ] `.env` Datei vollständig ausgefüllt
-- [ ] E-Mail-Versand getestet (Test-E-Mail erhalten?)
-- [ ] Admin-Passwort geändert
-- [ ] `APP_URL` auf Produktions-URL gesetzt
-- [ ] QR-Codes generiert und ausgedruckt
-- [ ] Kompletten Workflow einmal durchgespielt
-- [ ] Datenschutzerklärung angepasst (Organisations-Name)
-- [ ] HTTPS aktiviert (Railway/Render machen das automatisch)
+### E-Mail-Deliverability testen
 
-## 🆘 Hilfe bei Problemen
+1. Gehe zu: https://www.mail-tester.com
+2. Kopiere die Test-E-Mail-Adresse
+3. Registriere QR-Code mit Test-Adresse
+4. Prüfe Score (sollte 9/10+ sein)
+5. Falls niedriger: DNS-Records (SPF, DKIM, DMARC) prüfen
 
-### E-Mails kommen nicht an
+### Datenbank-Status prüfen
 
-1. **Spam-Ordner prüfen**
-2. **Gmail**: Stelle sicher, dass du ein App-Passwort verwendest (nicht dein normales Passwort)
-3. **Server-Logs prüfen**: `npm run dev` (im Terminal nach Fehlern suchen)
-4. **E-Mail-Credentials testen**:
-   ```bash
-   # Im Terminal
-   node -e "console.require('dotenv').config(); console.log(process.env.EMAIL_USER)"
-   ```
+**PostgreSQL (auf Railway):**
+```bash
+# Im Railway Dashboard:
+PostgreSQL Service → "Data" Tab → "Query"
 
-### QR-Code funktioniert nicht
-
-1. **URL prüfen**: Sollte so aussehen: `http://localhost:3000/scan?code=XXXXXXXX-XXXX-...`
-2. **Browser-Konsole öffnen** (F12) → Fehler prüfen
-3. **Datenbank prüfen**:
-   ```bash
-   sqlite3 database.sqlite
-   > SELECT * FROM qr_codes LIMIT 1;
-   ```
-
-### Port 3000 bereits belegt
-
-Ändere in `.env`:
-```env
-PORT=3001
+# Queries:
+SELECT COUNT(*) FROM qr_codes;
+SELECT COUNT(*) FROM qr_codes WHERE status = 'COMPLETED';
 ```
 
-## 📞 Support
+**SQLite (lokal):**
+```bash
+sqlite3 database.sqlite
+> SELECT COUNT(*) FROM qr_codes;
+> SELECT * FROM qr_codes WHERE status = 'COMPLETED' LIMIT 5;
+```
 
+## 🔄 Updates deployen
+
+```bash
+# Änderungen machen
+git add .
+git commit -m "Feature XYZ"
+git push
+
+# Railway deployed automatisch!
+```
+
+## 🆘 Support
+
+Bei Problemen:
 - **GitHub Issues**: https://github.com/eliasroebl/christmas-qrcode/issues
 - **README**: Siehe `README.md` für detaillierte Dokumentation
+- **Resend-Setup**: Siehe `RESEND_SETUP.md` für E-Mail-Konfiguration
 
 ---
 
