@@ -141,7 +141,8 @@ async function initializeTables() {
           recipient_message TEXT,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           expires_at TIMESTAMP NOT NULL,
-          completed_at TIMESTAMP
+          completed_at TIMESTAMP,
+          email_sent_at TIMESTAMP
         )
       `);
 
@@ -161,6 +162,14 @@ async function initializeTables() {
       await query(`CREATE INDEX IF NOT EXISTS idx_qr_codes_token ON qr_codes(token)`);
       await query(`CREATE INDEX IF NOT EXISTS idx_qr_codes_status ON qr_codes(status)`);
       await query(`CREATE INDEX IF NOT EXISTS idx_email_log_qr_code_id ON email_log(qr_code_id)`);
+
+      // Add missing column if it doesn't exist (migration)
+      try {
+        await query(`ALTER TABLE qr_codes ADD COLUMN IF NOT EXISTS email_sent_at TIMESTAMP`);
+      } catch (err) {
+        // Column might already exist, ignore error
+        console.log('Note: email_sent_at column already exists or could not be added');
+      }
     } else {
       // SQLite table creation
       await query(`
@@ -175,7 +184,8 @@ async function initializeTables() {
           recipient_message TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           expires_at DATETIME NOT NULL,
-          completed_at DATETIME
+          completed_at DATETIME,
+          email_sent_at DATETIME
         )
       `);
 
