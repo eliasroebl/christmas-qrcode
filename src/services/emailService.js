@@ -78,12 +78,29 @@ class EmailService {
         attachments: resendAttachments.length > 0 ? resendAttachments : undefined
       });
 
+      // Debug: Log full response structure
+      console.log('Resend API response:', JSON.stringify(result, null, 2));
+
+      // Check for errors in response
+      if (result?.error) {
+        console.error('✗ Resend API error:', result.error);
+        throw new Error(`Resend error: ${JSON.stringify(result.error)}`);
+      }
+
       // Resend response structure: { data: { id: '...' }, error: null }
       const emailId = result?.data?.id || result?.id || 'unknown';
-      console.log('✓ Email sent via Resend:', emailId);
+
+      if (emailId === 'unknown') {
+        console.warn('⚠️  Could not extract email ID from Resend response');
+        console.warn('Response keys:', Object.keys(result || {}));
+      } else {
+        console.log('✓ Email sent via Resend:', emailId);
+      }
+
       return { success: true, messageId: emailId };
     } catch (error) {
       console.error('✗ Resend error:', error);
+      console.error('Error details:', error.message, error.stack);
       throw error;
     }
   }
