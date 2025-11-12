@@ -282,7 +282,7 @@ Diese E-Mail wurde automatisch generiert.
             </div>
             ` : ''}
 
-            <p>Im Anhang dieser E-Mail finden Sie das Foto, das der Empfänger für Sie hochgeladen hat.</p>
+            <p>Im Anhang dieser E-Mail finden Sie die Foto(s), die der Empfänger für Sie hochgeladen hat.</p>
 
             <p><strong>Vielen Dank für Ihre Unterstützung! 💙💛</strong></p>
 
@@ -311,7 +311,7 @@ Ihr Geschenk ist angekommen!
 Der Empfänger in der Ukraine hat Ihr Geschenk erhalten und möchte sich bei Ihnen bedanken.
 
 ${sanitizedMessage ? `Nachricht:\n"${sanitizedMessage}"\n` : ''}
-Im Anhang dieser E-Mail finden Sie das Foto, das der Empfänger für Sie hochgeladen hat.
+Im Anhang dieser E-Mail finden Sie die Foto(s), die der Empfänger für Sie hochgeladen hat.
 
 Vielen Dank für Ihre Unterstützung!
 
@@ -325,12 +325,34 @@ GAiN (Global Aid Network) Austria
 Ihre Daten werden gemäß DSGVO geschützt und nach 12 Monaten automatisch gelöscht.
     `.trim();
 
+    // Parse photo paths from JSON (can be array or string for backwards compatibility)
     const attachments = [];
-    if (recipient_photo_path && fs.existsSync(recipient_photo_path)) {
-      attachments.push({
-        filename: 'dankesfoto.jpg',
-        path: recipient_photo_path
-      });
+    if (recipient_photo_path) {
+      try {
+        const photoPaths = JSON.parse(recipient_photo_path);
+        const pathsArray = Array.isArray(photoPaths) ? photoPaths : [photoPaths];
+
+        pathsArray.forEach((photoPath, index) => {
+          if (fs.existsSync(photoPath)) {
+            const extension = path.extname(photoPath);
+            attachments.push({
+              filename: `dankesfoto_${index + 1}${extension}`,
+              path: photoPath
+            });
+          }
+        });
+
+        console.log(`Attaching ${attachments.length} photo(s) to email`);
+      } catch (error) {
+        // Fallback for old single-path format (backwards compatibility)
+        console.log('Photo path is not JSON, treating as single path');
+        if (fs.existsSync(recipient_photo_path)) {
+          attachments.push({
+            filename: 'dankesfoto.jpg',
+            path: recipient_photo_path
+          });
+        }
+      }
     }
 
     try {

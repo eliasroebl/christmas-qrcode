@@ -73,9 +73,18 @@ class QRCode {
   }
 
   /**
-   * Upload recipient content (photo + message)
+   * Upload recipient content (photos + message)
+   * @param {string} token - QR code token
+   * @param {string|string[]} photoPaths - Single path or array of paths
+   * @param {string} message - Optional message
    */
-  static async uploadRecipientContent(token, photoPath, message) {
+  static async uploadRecipientContent(token, photoPaths, message) {
+    // Convert to array if single path provided (backwards compatibility)
+    const pathsArray = Array.isArray(photoPaths) ? photoPaths : [photoPaths];
+
+    // Store as JSON string
+    const photoPathsJson = JSON.stringify(pathsArray);
+
     const sql = `
       UPDATE qr_codes
       SET recipient_photo_path = ?,
@@ -84,7 +93,7 @@ class QRCode {
           completed_at = ${isPostgres ? 'CURRENT_TIMESTAMP' : 'CURRENT_TIMESTAMP'}
       WHERE token = ? AND status = 'DONOR_REGISTERED' AND donor_verified = ${isPostgres ? 'TRUE' : '1'}
     `;
-    const result = await run(sql, [photoPath, message, token]);
+    const result = await run(sql, [photoPathsJson, message, token]);
 
     if (result.changes === 0) {
       throw new Error('QR code not ready for recipient upload');

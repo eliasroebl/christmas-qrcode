@@ -143,24 +143,28 @@ router.get('/verify/:token', async (req, res) => {
 
 /**
  * POST /api/scan/upload-recipient
- * Upload recipient photo and message (second scan)
- * Body: FormData with photo, message, token
+ * Upload recipient photos (up to 5) and message (second scan)
+ * Body: FormData with photos[], message, token
  */
-router.post('/upload-recipient', upload.single('photo'), async (req, res) => {
+router.post('/upload-recipient', upload.array('photos', 5), async (req, res) => {
   try {
     const { token, message } = req.body;
 
     // Debug logging
     console.log('Upload recipient - req.body:', req.body);
     console.log('Upload recipient - message value:', message);
-    console.log('Upload recipient - message type:', typeof message);
+    console.log('Upload recipient - photos count:', req.files ? req.files.length : 0);
 
     if (!token) {
       return res.status(400).json({ error: 'Missing token' });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ error: 'Photo is required' });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'At least one photo is required' });
+    }
+
+    if (req.files.length > 5) {
+      return res.status(400).json({ error: 'Maximum 5 photos allowed' });
     }
 
     const qrCode = await QRCodeModel.findByToken(token);
@@ -176,16 +180,20 @@ router.post('/upload-recipient', upload.single('photo'), async (req, res) => {
       return res.status(400).json({ error: 'QR code already completed' });
     }
 
-    if (!qrCode.donor_verified) { // Works for both PostgreSQL (true/false) and SQLite (1/0)
+    if (!qrCode.donor_verified) {
       return res.status(400).json({ error: 'Donor email not yet verified' });
     }
 
-    // Update database with photo and message
     // Handle empty message or whitespace-only message
     const recipientMessage = (message && message.trim()) ? message.trim() : null;
     console.log('Saving message to DB:', recipientMessage);
 
-    await QRCodeModel.uploadRecipientContent(token, req.file.path, recipientMessage);
+    // Get all photo paths
+    const photoPaths = req.files.map(file => file.path);
+    console.log('Photo paths:', photoPaths);
+
+    // Update database with photos and message
+    await QRCodeModel.uploadRecipientContent(token, photoPaths, recipientMessage);
 
     // Get updated QR code data
     const updatedQRCode = await QRCodeModel.findByToken(token);
