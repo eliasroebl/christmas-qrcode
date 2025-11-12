@@ -40,22 +40,22 @@ class EmailService {
   /**
    * Send email using configured provider
    */
-  async sendEmail({ to, subject, html, attachments = [] }) {
+  async sendEmail({ to, subject, html, text, attachments = [] }) {
     if (this.provider === 'none') {
       throw new Error('No email provider configured');
     }
 
     if (this.provider === 'resend') {
-      return await this.sendWithResend({ to, subject, html, attachments });
+      return await this.sendWithResend({ to, subject, html, text, attachments });
     } else {
-      return await this.sendWithSMTP({ to, subject, html, attachments });
+      return await this.sendWithSMTP({ to, subject, html, text, attachments });
     }
   }
 
   /**
    * Send email via Resend
    */
-  async sendWithResend({ to, subject, html, attachments }) {
+  async sendWithResend({ to, subject, html, text, attachments }) {
     try {
       // Convert file attachments to base64 for Resend
       const resendAttachments = [];
@@ -75,6 +75,7 @@ class EmailService {
         to: to,
         subject: subject,
         html: html,
+        text: text, // Plain text version improves deliverability
         attachments: resendAttachments.length > 0 ? resendAttachments : undefined
       });
 
@@ -108,13 +109,14 @@ class EmailService {
   /**
    * Send email via SMTP (Nodemailer)
    */
-  async sendWithSMTP({ to, subject, html, attachments }) {
+  async sendWithSMTP({ to, subject, html, text, attachments }) {
     try {
       const result = await this.transporter.sendMail({
         from: process.env.EMAIL_FROM,
         to: to,
         subject: subject,
         html: html,
+        text: text, // Plain text version improves deliverability
         attachments: attachments
       });
 
@@ -189,11 +191,36 @@ class EmailService {
       </html>
     `;
 
+    // Plain text version for better deliverability
+    const textContent = `
+Vielen Dank für Ihre Spende!
+
+Liebe Spenderin, lieber Spender,
+
+vielen Dank, dass Sie einem Menschen in der Ukraine eine Freude bereiten möchten!
+
+Bitte bestätigen Sie Ihre E-Mail-Adresse:
+${verificationLink}
+
+Nach der Bestätigung wird Ihr QR-Code aktiviert und Sie erhalten automatisch eine E-Mail, sobald Ihr Geschenk in der Ukraine angekommen ist und der Empfänger eine Dankesnachricht gesendet hat.
+
+Status verfolgen:
+${statusLink}
+
+Herzliche Grüße
+Ihr GAiN Austria Team
+
+---
+GAiN (Global Aid Network) Austria
+Diese E-Mail wurde automatisch generiert.
+    `.trim();
+
     try {
       await this.sendEmail({
         to: email,
-        subject: '🎁 Bitte bestätigen Sie Ihre E-Mail-Adresse - GAiN Austria',
-        html: htmlContent
+        subject: 'Bitte bestätigen Sie Ihre E-Mail-Adresse - GAiN Austria',
+        html: htmlContent,
+        text: textContent
       });
       return { success: true };
     } catch (error) {
@@ -273,6 +300,31 @@ class EmailService {
       </html>
     `;
 
+    // Plain text version for better deliverability
+    const textContent = `
+Dankesnachricht erhalten!
+
+Liebe Spenderin, lieber Spender,
+
+Ihr Geschenk ist angekommen!
+
+Der Empfänger in der Ukraine hat Ihr Geschenk erhalten und möchte sich bei Ihnen bedanken.
+
+${sanitizedMessage ? `Nachricht:\n"${sanitizedMessage}"\n` : ''}
+Im Anhang dieser E-Mail finden Sie das Foto, das der Empfänger für Sie hochgeladen hat.
+
+Vielen Dank für Ihre Unterstützung!
+
+Mit Ihrer Spende haben Sie einem Menschen in schwierigen Zeiten geholfen und Hoffnung geschenkt.
+
+Herzliche Grüße
+Ihr GAiN Austria Team
+
+---
+GAiN (Global Aid Network) Austria
+Ihre Daten werden gemäß DSGVO geschützt und nach 12 Monaten automatisch gelöscht.
+    `.trim();
+
     const attachments = [];
     if (recipient_photo_path && fs.existsSync(recipient_photo_path)) {
       attachments.push({
@@ -284,8 +336,9 @@ class EmailService {
     try {
       await this.sendEmail({
         to: donor_email,
-        subject: '💌 Dankesnachricht aus der Ukraine - GAiN Austria',
+        subject: 'Dankesnachricht aus der Ukraine - GAiN Austria',
         html: htmlContent,
+        text: textContent,
         attachments: attachments
       });
 
