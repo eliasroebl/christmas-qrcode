@@ -144,8 +144,6 @@ class EmailService {
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .logo-section { background: white; padding: 20px; text-align: center; border-bottom: 3px solid #0057B8; }
-          .logo { max-width: 200px; height: auto; }
           .header { background: #0057B8; color: white; padding: 20px; text-align: center; }
           .content { background: #f9f9f9; padding: 30px; }
           .button { display: inline-block; background: #FFD700; color: #0057B8; padding: 12px 30px;
@@ -155,9 +153,6 @@ class EmailService {
       </head>
       <body>
         <div class="container">
-          <div class="logo-section">
-            <img src="https://www.gain-germany.org/fileadmin/Content/Download/GAiNLogoCMYK_ohne.png" alt="GAiN Germany" class="logo">
-          </div>
           <div class="header">
             <h1>🎁 Vielen Dank für Ihre Spende!</h1>
           </div>
@@ -252,8 +247,6 @@ Diese E-Mail wurde automatisch generiert.
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .logo-section { background: white; padding: 20px; text-align: center; border-bottom: 3px solid #0057B8; }
-          .logo { max-width: 200px; height: auto; }
           .header { background: #0057B8; color: white; padding: 20px; text-align: center; }
           .content { background: #f9f9f9; padding: 30px; }
           .message-box { background: white; border-left: 4px solid #FFD700; padding: 15px; margin: 20px 0; }
@@ -262,9 +255,6 @@ Diese E-Mail wurde automatisch generiert.
       </head>
       <body>
         <div class="container">
-          <div class="logo-section">
-            <img src="https://www.gain-germany.org/fileadmin/Content/Download/GAiNLogoCMYK_ohne.png" alt="GAiN Germany" class="logo">
-          </div>
           <div class="header">
             <h1>💌 Dankesnachricht erhalten!</h1>
           </div>
