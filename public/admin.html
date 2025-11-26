@@ -240,6 +240,9 @@
       font-size: 14px;
       margin: 0 2px;
     }
+    .action-btn:hover {
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
@@ -427,6 +430,9 @@
                 <button class="action-btn" onclick='showQRCode("${qr.token}")'>
                   📱 QR anzeigen
                 </button>
+                <button class="action-btn" onclick='deleteQRCode("${qr.token}")' style="background: #dc3545;">
+                  🗑️ Löschen
+                </button>
               </td>
             </tr>
           `;
@@ -534,6 +540,33 @@
 
     function closeQRModal() {
       document.getElementById('qrModal').classList.remove('active');
+    }
+
+    async function deleteQRCode(token) {
+      if (!confirm('Möchten Sie diesen QR-Code wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/admin/qr-codes/${token}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+
+        if (response.ok) {
+          alert('QR-Code erfolgreich gelöscht!');
+          loadStatistics();
+          loadQRCodes();
+        } else {
+          const data = await response.json();
+          alert(`Fehler: ${data.error || 'QR-Code konnte nicht gelöscht werden'}`);
+        }
+      } catch (error) {
+        alert('Netzwerkfehler beim Löschen');
+        console.error('Error deleting QR code:', error);
+      }
     }
 
     // Close modal when clicking outside

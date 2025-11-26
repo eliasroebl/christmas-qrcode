@@ -42,4 +42,19 @@ router.get('/qr-codes', adminAuth, async (req, res) => {
   }
 });
 
+/**
+ * DELETE /api/admin/qr-codes/:token
+ * Delete a QR code
+ */
+router.delete('/qr-codes/:token', adminAuth, async (req, res) => {
+  try {
+    const { token } = req.params;
+    await QRCodeModel.deleteByToken(token);
+    res.json({ success: true, message: 'QR code deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting QR code:', error);
+    res.status(500).json({ error: 'Failed to delete QR code' });
+  }
+});
+
 module.exports = router;

@@ -134,6 +134,20 @@ class QRCode {
     `;
     return await get(sql);
   }
+
+  /**
+   * Delete QR code by token
+   */
+  static async deleteByToken(token) {
+    const sql = `DELETE FROM qr_codes WHERE token = ?`;
+    const result = await run(sql, [token]);
+
+    if (result.changes === 0) {
+      throw new Error('QR code not found');
+    }
+
+    return { success: true };
+  }
 }
 
 module.exports = QRCode;
